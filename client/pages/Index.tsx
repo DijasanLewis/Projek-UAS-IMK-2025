@@ -225,18 +225,15 @@ export default function Index() {
                 <Link to="/" className="text-green-600 font-medium">
                   Beranda
                 </Link>
-                <Link to="/layanan" className="text-gray-600">
+                <Link to="/layanan" className="text-gray-900 font-medium">
                   Layanan
                 </Link>
-                <Link to="/berita" className="text-gray-600">
+                <Link to="/berita" className="text-gray-900 font-medium">
                   Berita
                 </Link>
-                <Link to="/aduan" className="text-gray-600">
-                  Layanan Aduan
+                <Link to="/aduan" className="text-gray-900 font-medium">
+                  Aduan
                 </Link>
-                <a href="#kontak" className="text-gray-600">
-                  Kontak
-                </a>
                 <div className="pt-4 border-t space-y-2">
                   <Link to="/login">
                     <Button
