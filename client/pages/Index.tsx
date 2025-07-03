@@ -313,7 +313,7 @@ export default function Index() {
                   placeholder="Cari layanan yang Anda butuhkan..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-green-200 focus:border-green-500"
+                  className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
