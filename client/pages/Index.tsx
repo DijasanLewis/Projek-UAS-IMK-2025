@@ -154,15 +154,15 @@ export default function Index() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <a href="#beranda" className="text-blue-600 font-medium">
+              <Link to="/" className="text-blue-600 font-medium">
                 Beranda
-              </a>
-              <a
-                href="#layanan"
+              </Link>
+              <Link
+                to="/layanan"
                 className="text-gray-600 hover:text-blue-600 transition-colors"
               >
                 Layanan
-              </a>
+              </Link>
               <a
                 href="#informasi"
                 className="text-gray-600 hover:text-blue-600 transition-colors"
