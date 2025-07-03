@@ -275,6 +275,98 @@ export default function Index() {
       {/* Institutions Section */}
       <section className="py-12 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              Instansi Tergabung
+            </h3>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              22 instansi pemerintah dan BUMN/BUMD yang melayani di MPP Kota
+              Bekasi
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[
+              {
+                name: "Dinas Kependudukan dan Catatan Sipil",
+                abbr: "Dukcapil",
+                services: "KTP, KK, Akta",
+              },
+              {
+                name: "Dinas Penanaman Modal dan PTSP",
+                abbr: "DPMPTSP",
+                services: "Izin Usaha, IMB",
+              },
+              {
+                name: "Polres Metro Bekasi Kota",
+                abbr: "Polres",
+                services: "SIM, SKCK",
+              },
+              {
+                name: "PDAM Tirta Patriot",
+                abbr: "PDAM",
+                services: "Tagihan Air",
+              },
+              {
+                name: "Dinas Tenaga Kerja",
+                abbr: "Disnaker",
+                services: "Antar Kerja",
+              },
+              {
+                name: "Badan Pertanahan Nasional",
+                abbr: "BPN",
+                services: "Sertifikat",
+              },
+              {
+                name: "Dinas Sosial",
+                abbr: "Dinsos",
+                services: "Bantuan Sosial",
+              },
+              { name: "Kantor Imigrasi", abbr: "Imigrasi", services: "Paspor" },
+              {
+                name: "Dinas Pendidikan",
+                abbr: "Disdik",
+                services: "Pendidikan",
+              },
+              {
+                name: "Dinas Kesehatan",
+                abbr: "Dinkes",
+                services: "Kesehatan",
+              },
+              {
+                name: "Dinas Perhubungan",
+                abbr: "Dishub",
+                services: "Transportasi",
+              },
+              { name: "PLN Bekasi", abbr: "PLN", services: "Listrik" },
+            ].map((inst, index) => (
+              <Card
+                key={index}
+                className="text-center hover:shadow-md transition-shadow border-green-100"
+              >
+                <CardContent className="p-4">
+                  <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                    <Building className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                    {inst.abbr}
+                  </h4>
+                  <p className="text-xs text-gray-600 mb-2">{inst.name}</p>
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-yellow-100 text-green-700"
+                  >
+                    {inst.services}
+                  </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
