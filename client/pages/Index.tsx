@@ -376,7 +376,7 @@ export default function Index() {
       {/* Stats Section */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-3xl font-bold text-green-600 mb-2">
@@ -388,6 +388,49 @@ export default function Index() {
                 <div className="text-sm text-gray-500">{stat.description}</div>
               </div>
             ))}
+          </div>
+
+          {/* Visitor Statistics */}
+          <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-6 text-white">
+            <h3 className="text-xl font-bold mb-4 text-center">
+              Statistik Pengunjung
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-300 mb-1">
+                  1,234
+                </div>
+                <div className="text-sm text-green-100">Hari Ini</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-300 mb-1">
+                  8,567
+                </div>
+                <div className="text-sm text-green-100">Minggu Ini</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-300 mb-1">
+                  32,891
+                </div>
+                <div className="text-sm text-green-100">Bulan Ini</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-300 mb-1">
+                  456,789
+                </div>
+                <div className="text-sm text-green-100">Total</div>
+              </div>
+            </div>
+            <div className="text-center mt-4">
+              <p className="text-sm text-green-100">
+                Terakhir diperbarui: {new Date().toLocaleDateString("id-ID")}{" "}
+                pukul{" "}
+                {new Date().toLocaleTimeString("id-ID", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
           </div>
         </div>
       </section>
