@@ -32,7 +32,6 @@ import {
   Home,
   Star,
   CheckCircle,
-  AlertCircle,
   Menu,
   X,
   MessageSquare,
