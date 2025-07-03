@@ -172,8 +172,7 @@ export default function Index() {
                 <Link to="/layanan">
                   <Button
                     size="lg"
-                    variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-green-600"
+                    className="bg-white text-green-600 hover:bg-gray-100 border-2 border-white"
                   >
                     <FileText className="h-5 w-5 mr-2" />
                     Lihat Semua Layanan
