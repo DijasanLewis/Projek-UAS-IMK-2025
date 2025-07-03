@@ -259,14 +259,16 @@ export default function Index() {
                   <Calendar className="h-5 w-5 mr-2" />
                   Daftar Antrian Sekarang
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-blue-600"
-                >
-                  <FileText className="h-5 w-5 mr-2" />
-                  Lihat Semua Layanan
-                </Button>
+                <Link to="/layanan">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-blue-600"
+                  >
+                    <FileText className="h-5 w-5 mr-2" />
+                    Lihat Semua Layanan
+                  </Button>
+                </Link>
               </div>
             </div>
 
