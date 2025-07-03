@@ -122,21 +122,6 @@ export default function Index() {
     { label: "Rating Kepuasan", value: "4.8/5", description: "Dari pengguna" },
   ];
 
-  const announcements = [
-    {
-      type: "info",
-      title: "Sistem Online Aktif",
-      message: "Aplikasi Simpel Antri tersedia 24/7 untuk kemudahan Anda",
-      time: "2 jam yang lalu",
-    },
-    {
-      type: "warning",
-      title: "Maintenance Terjadwal",
-      message: "Sistem akan maintenance Minggu, 15 Des 2024 pukul 02:00-06:00",
-      time: "1 hari yang lalu",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
