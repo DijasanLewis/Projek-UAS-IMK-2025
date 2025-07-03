@@ -206,12 +206,12 @@ export default function Index() {
           {isMenuOpen && (
             <div className="md:hidden border-t py-4">
               <nav className="flex flex-col space-y-4">
-                <a href="#beranda" className="text-blue-600 font-medium">
+                <Link to="/" className="text-blue-600 font-medium">
                   Beranda
-                </a>
-                <a href="#layanan" className="text-gray-600">
+                </Link>
+                <Link to="/layanan" className="text-gray-600">
                   Layanan
-                </a>
+                </Link>
                 <a href="#informasi" className="text-gray-600">
                   Informasi
                 </a>
