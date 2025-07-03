@@ -167,28 +167,22 @@ export default function Index() {
               </Link>
               <Link
                 to="/layanan"
-                className="text-gray-600 hover:text-green-600 transition-colors"
+                className="text-gray-900 hover:text-green-600 transition-colors font-medium"
               >
                 Layanan
               </Link>
               <Link
                 to="/berita"
-                className="text-gray-600 hover:text-green-600 transition-colors"
+                className="text-gray-900 hover:text-green-600 transition-colors font-medium"
               >
                 Berita
               </Link>
               <Link
                 to="/aduan"
-                className="text-gray-600 hover:text-green-600 transition-colors"
+                className="text-gray-900 hover:text-green-600 transition-colors font-medium"
               >
-                Layanan Aduan
+                Aduan
               </Link>
-              <a
-                href="#kontak"
-                className="text-gray-600 hover:text-green-600 transition-colors"
-              >
-                Kontak
-              </a>
             </nav>
 
             {/* Action Buttons */}
