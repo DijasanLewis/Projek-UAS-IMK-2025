@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +34,9 @@ import {
   AlertCircle,
   Menu,
   X,
+  MessageSquare,
+  Newspaper,
+  LogIn,
 } from "lucide-react";
 
 export default function Index() {
@@ -141,37 +144,48 @@ export default function Index() {
           <div className="flex justify-between items-center h-16">
             {/* Logo and Title */}
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-2 rounded-lg">
                 <Building className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-lg font-bold text-gray-900">
                   MPP Kota Bekasi
                 </h1>
-                <p className="text-xs text-gray-500">Mal Pelayanan Publik</p>
+                <p className="text-xs text-green-600 font-medium">
+                  Mal Pelayanan Publik
+                </p>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-blue-600 font-medium">
+            <nav className="hidden md:flex space-x-6">
+              <Link
+                to="/"
+                className="text-green-600 font-medium border-b-2 border-green-600 pb-1"
+              >
                 Beranda
               </Link>
               <Link
                 to="/layanan"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
+                className="text-gray-600 hover:text-green-600 transition-colors"
               >
                 Layanan
               </Link>
-              <a
-                href="#informasi"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
+              <Link
+                to="/berita"
+                className="text-gray-600 hover:text-green-600 transition-colors"
               >
-                Informasi
-              </a>
+                Berita
+              </Link>
+              <Link
+                to="/aduan"
+                className="text-gray-600 hover:text-green-600 transition-colors"
+              >
+                Layanan Aduan
+              </Link>
               <a
                 href="#kontak"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
+                className="text-gray-600 hover:text-green-600 transition-colors"
               >
                 Kontak
               </a>
@@ -179,14 +193,22 @@ export default function Index() {
 
             {/* Action Buttons */}
             <div className="hidden md:flex items-center space-x-3">
-              <Button variant="outline" size="sm">
-                <User className="h-4 w-4 mr-2" />
-                Masuk
-              </Button>
-              <Button size="sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                Daftar Antrian
-              </Button>
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-green-600 text-green-600 hover:bg-green-50"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Masuk
+                </Button>
+              </Link>
+              <Link to="/booking">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Daftar Antrian
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -206,31 +228,41 @@ export default function Index() {
           {isMenuOpen && (
             <div className="md:hidden border-t py-4">
               <nav className="flex flex-col space-y-4">
-                <Link to="/" className="text-blue-600 font-medium">
+                <Link to="/" className="text-green-600 font-medium">
                   Beranda
                 </Link>
                 <Link to="/layanan" className="text-gray-600">
                   Layanan
                 </Link>
-                <a href="#informasi" className="text-gray-600">
-                  Informasi
-                </a>
+                <Link to="/berita" className="text-gray-600">
+                  Berita
+                </Link>
+                <Link to="/aduan" className="text-gray-600">
+                  Layanan Aduan
+                </Link>
                 <a href="#kontak" className="text-gray-600">
                   Kontak
                 </a>
                 <div className="pt-4 border-t space-y-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Masuk
-                  </Button>
-                  <Button size="sm" className="w-full justify-start">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Daftar Antrian
-                  </Button>
+                  <Link to="/login">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-green-600 text-green-600"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Masuk
+                    </Button>
+                  </Link>
+                  <Link to="/booking">
+                    <Button
+                      size="sm"
+                      className="w-full justify-start bg-green-600 hover:bg-green-700"
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Daftar Antrian
+                    </Button>
+                  </Link>
                 </div>
               </nav>
             </div>
@@ -239,31 +271,38 @@ export default function Index() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-16">
+      <section className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <span className="bg-yellow-400 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
+                  KOTA PATRIOT
+                </span>
+              </div>
               <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                Layanan Publik
-                <span className="block text-blue-200">Mudah & Terpercaya</span>
+                Mal Pelayanan Publik
+                <span className="block text-yellow-300">Kota Bekasi</span>
               </h2>
-              <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Akses 100+ layanan publik dari 22 instansi dalam satu tempat.
-                Daftar antrian online dan nikmati pelayanan yang efisien.
+              <p className="text-xl text-green-100 mb-8 leading-relaxed">
+                Melayani dengan sepenuh hati untuk masyarakat Kota Bekasi. Akses
+                100+ layanan publik dari 22 instansi dalam satu lokasi.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-white text-blue-600 hover:bg-blue-50"
-                >
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Daftar Antrian Sekarang
-                </Button>
+                <Link to="/booking">
+                  <Button
+                    size="lg"
+                    className="bg-yellow-400 text-green-800 hover:bg-yellow-300 font-semibold"
+                  >
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Daftar Antrian Online
+                  </Button>
+                </Link>
                 <Link to="/layanan">
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-blue-600"
+                    className="border-white text-white hover:bg-white hover:text-green-600"
                   >
                     <FileText className="h-5 w-5 mr-2" />
                     Lihat Semua Layanan
@@ -283,7 +322,7 @@ export default function Index() {
                   placeholder="Cari layanan yang Anda butuhkan..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 border-green-200 focus:border-green-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -292,11 +331,14 @@ export default function Index() {
                     key={index}
                     variant="ghost"
                     size="sm"
-                    className="justify-start text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                    className="justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
                   >
                     {category.icon}
                     <span className="ml-2">{category.name}</span>
-                    <Badge variant="secondary" className="ml-auto text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto text-xs bg-yellow-100 text-green-700"
+                    >
                       {category.count}
                     </Badge>
                   </Button>
@@ -308,10 +350,10 @@ export default function Index() {
       </section>
 
       {/* Announcements */}
-      <section className="py-6 bg-gray-100 border-b">
+      <section className="py-6 bg-yellow-50 border-b border-yellow-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-4 overflow-x-auto">
-            <div className="flex items-center space-x-2 text-gray-600 whitespace-nowrap">
+            <div className="flex items-center space-x-2 text-green-700 whitespace-nowrap">
               <AlertCircle className="h-4 w-4" />
               <span className="font-medium">Pengumuman:</span>
             </div>
@@ -323,15 +365,15 @@ export default function Index() {
                 <div
                   className={`w-2 h-2 rounded-full ${
                     announcement.type === "info"
-                      ? "bg-blue-500"
+                      ? "bg-green-500"
                       : "bg-yellow-500"
                   }`}
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-green-800">
                   {announcement.title}
                 </span>
-                <span className="text-xs text-gray-500">•</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-green-600">•</span>
+                <span className="text-xs text-green-600">
                   {announcement.time}
                 </span>
               </div>
@@ -346,7 +388,7 @@ export default function Index() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl font-bold text-green-600 mb-2">
                   {stat.value}
                 </div>
                 <div className="font-medium text-gray-900 mb-1">
@@ -375,7 +417,7 @@ export default function Index() {
             {popularServices.map((service, index) => (
               <Card
                 key={index}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
+                className="hover:shadow-lg transition-shadow cursor-pointer border-green-100"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -393,6 +435,7 @@ export default function Index() {
                     <div className="flex items-center space-x-2">
                       <Badge
                         variant={service.available ? "default" : "secondary"}
+                        className={service.available ? "bg-green-600" : ""}
                       >
                         {service.available ? "Tersedia" : "Tutup"}
                       </Badge>
@@ -403,20 +446,24 @@ export default function Index() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <span>{service.category}</span>
+                    <span className="bg-yellow-100 text-green-700 px-2 py-1 rounded text-xs">
+                      {service.category}
+                    </span>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
                       {service.estimatedTime}
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
-                    disabled={!service.available}
-                    variant={service.available ? "default" : "secondary"}
-                  >
-                    {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <Link to={service.available ? "/booking" : "#"}>
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      disabled={!service.available}
+                      variant={service.available ? "default" : "secondary"}
+                    >
+                      {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -425,7 +472,7 @@ export default function Index() {
       </section>
 
       {/* Location & Contact */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" id="kontak">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Location */}
@@ -433,11 +480,11 @@ export default function Index() {
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Lokasi & Jam Operasional
               </h3>
-              <Card>
+              <Card className="border-green-100">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-start space-x-3">
-                      <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <MapPin className="h-5 w-5 text-green-600 mt-0.5" />
                       <div>
                         <p className="font-medium text-gray-900">
                           Bekasi Trade Center (BTC) Mall
@@ -454,7 +501,7 @@ export default function Index() {
                     <Separator />
 
                     <div className="flex items-start space-x-3">
-                      <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <Clock className="h-5 w-5 text-green-600 mt-0.5" />
                       <div>
                         <p className="font-medium text-gray-900">
                           Jam Operasional
@@ -478,11 +525,11 @@ export default function Index() {
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Hubungi Kami
               </h3>
-              <Card>
+              <Card className="border-green-100">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <Phone className="h-5 w-5 text-blue-600" />
+                      <Phone className="h-5 w-5 text-green-600" />
                       <div>
                         <p className="font-medium text-gray-900">Telepon</p>
                         <p className="text-gray-600">(021) 8841-1234</p>
@@ -490,7 +537,7 @@ export default function Index() {
                     </div>
 
                     <div className="flex items-center space-x-3">
-                      <Mail className="h-5 w-5 text-blue-600" />
+                      <Mail className="h-5 w-5 text-green-600" />
                       <div>
                         <p className="font-medium text-gray-900">Email</p>
                         <p className="text-gray-600">
@@ -533,22 +580,22 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-green-800 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <Building className="h-6 w-6 text-white" />
+                <div className="bg-yellow-400 p-2 rounded-lg">
+                  <Building className="h-6 w-6 text-green-800" />
                 </div>
                 <div>
                   <h4 className="text-lg font-bold">MPP Kota Bekasi</h4>
-                  <p className="text-gray-400 text-sm">Mal Pelayanan Publik</p>
+                  <p className="text-green-200 text-sm">Mal Pelayanan Publik</p>
                 </div>
               </div>
-              <p className="text-gray-400 mb-4">
+              <p className="text-green-200 mb-4">
                 Melayani masyarakat Kota Bekasi dengan layanan publik yang
-                mudah, cepat, dan terpercaya.
+                mudah, cepat, dan terpercaya dalam semangat Kota Patriot.
               </p>
               <div className="flex items-center space-x-2">
                 <Star className="h-4 w-4 text-yellow-400" />
@@ -560,74 +607,98 @@ export default function Index() {
 
             <div>
               <h5 className="font-semibold mb-4">Layanan Utama</h5>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-2 text-green-200">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    to="/layanan"
+                    className="hover:text-white transition-colors"
+                  >
                     KTP Elektronik
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    to="/layanan"
+                    className="hover:text-white transition-colors"
+                  >
                     Akta Kelahiran
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    to="/layanan"
+                    className="hover:text-white transition-colors"
+                  >
                     Izin Usaha
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    to="/layanan"
+                    className="hover:text-white transition-colors"
+                  >
                     Perpanjangan SIM
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h5 className="font-semibold mb-4">Informasi</h5>
-              <ul className="space-y-2 text-gray-400">
+              <h5 className="font-semibold mb-4">Menu</h5>
+              <ul className="space-y-2 text-green-200">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Panduan Penggunaan
-                  </a>
+                  <Link
+                    to="/berita"
+                    className="hover:text-white transition-colors"
+                  >
+                    Berita
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Syarat & Ketentuan
-                  </a>
+                  <Link
+                    to="/aduan"
+                    className="hover:text-white transition-colors"
+                  >
+                    Layanan Aduan
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    FAQ
-                  </a>
+                  <Link
+                    to="/booking"
+                    className="hover:text-white transition-colors"
+                  >
+                    Booking Antrian
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Kontak
-                  </a>
+                  <Link
+                    to="/login"
+                    className="hover:text-white transition-colors"
+                  >
+                    Login
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          <Separator className="my-8 bg-gray-700" />
+          <Separator className="my-8 bg-green-700" />
 
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-green-200 text-sm">
               © 2024 Pemerintah Kota Bekasi. Seluruh hak cipta dilindungi
               undang-undang.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a
                 href="#"
-                className="text-gray-400 hover:text-white transition-colors text-sm"
+                className="text-green-200 hover:text-white transition-colors text-sm"
               >
                 Kebijakan Privasi
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-white transition-colors text-sm"
+                className="text-green-200 hover:text-white transition-colors text-sm"
               >
                 Syarat Layanan
               </a>
