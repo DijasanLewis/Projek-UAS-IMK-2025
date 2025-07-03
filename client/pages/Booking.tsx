@@ -109,34 +109,7 @@ export default function Booking() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link
-              to="/"
-              className="flex items-center space-x-2 text-gray-600 hover:text-green-600"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Kembali ke Beranda</span>
-            </Link>
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 p-2 rounded-lg">
-                <Building className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  Booking Antrian
-                </h1>
-                <p className="text-xs text-green-600 font-medium">
-                  MPP Kota Bekasi
-                </p>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Progress Steps */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
