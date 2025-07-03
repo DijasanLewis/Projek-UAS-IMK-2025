@@ -214,79 +214,57 @@ export default function Index() {
               Layanan yang paling sering diakses oleh masyarakat Kota Bekasi
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[
-              {
-                name: "Dinas Kependudukan dan Catatan Sipil",
-                abbr: "Dukcapil",
-                services: "KTP, KK, Akta",
-              },
-              {
-                name: "Dinas Penanaman Modal dan PTSP",
-                abbr: "DPMPTSP",
-                services: "Izin Usaha, IMB",
-              },
-              {
-                name: "Polres Metro Bekasi Kota",
-                abbr: "Polres",
-                services: "SIM, SKCK",
-              },
-              {
-                name: "PDAM Tirta Patriot",
-                abbr: "PDAM",
-                services: "Tagihan Air",
-              },
-              {
-                name: "Dinas Tenaga Kerja",
-                abbr: "Disnaker",
-                services: "Antar Kerja",
-              },
-              {
-                name: "Badan Pertanahan Nasional",
-                abbr: "BPN",
-                services: "Sertifikat",
-              },
-              {
-                name: "Dinas Sosial",
-                abbr: "Dinsos",
-                services: "Bantuan Sosial",
-              },
-              { name: "Kantor Imigrasi", abbr: "Imigrasi", services: "Paspor" },
-              {
-                name: "Dinas Pendidikan",
-                abbr: "Disdik",
-                services: "Pendidikan",
-              },
-              {
-                name: "Dinas Kesehatan",
-                abbr: "Dinkes",
-                services: "Kesehatan",
-              },
-              {
-                name: "Dinas Perhubungan",
-                abbr: "Dishub",
-                services: "Transportasi",
-              },
-              { name: "PLN Bekasi", abbr: "PLN", services: "Listrik" },
-            ].map((inst, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {popularServices.map((service, index) => (
               <Card
                 key={index}
-                className="text-center hover:shadow-md transition-shadow border-green-100"
+                className="hover:shadow-lg transition-shadow cursor-pointer border-green-100"
               >
-                <CardContent className="p-4">
-                  <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                    <Building className="h-6 w-6 text-green-600" />
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div
+                      className={`p-3 rounded-lg ${service.available ? "bg-green-100" : "bg-gray-100"}`}
+                    >
+                      <div
+                        className={
+                          service.available ? "text-green-600" : "text-gray-400"
+                        }
+                      >
+                        {service.icon}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge
+                        variant={service.available ? "default" : "secondary"}
+                        className={service.available ? "bg-green-600" : ""}
+                      >
+                        {service.available ? "Tersedia" : "Tutup"}
+                      </Badge>
+                    </div>
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">
-                    {inst.abbr}
-                  </h4>
-                  <p className="text-xs text-gray-600 mb-2">{inst.name}</p>
-                  <Badge
-                    variant="secondary"
-                    className="text-xs bg-yellow-100 text-green-700"
-                  >
-                    {inst.services}
-                  </Badge>
+                  <CardTitle className="text-lg">{service.title}</CardTitle>
+                  <CardDescription>{service.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span className="bg-yellow-100 text-green-700 px-2 py-1 rounded text-xs">
+                      {service.category}
+                    </span>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {service.estimatedTime}
+                    </div>
+                  </div>
+                  <Link to={service.available ? "/booking" : "#"}>
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      disabled={!service.available}
+                      variant={service.available ? "default" : "secondary"}
+                    >
+                      {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
