@@ -1,11 +1,24 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth"; // Import useAuth
 import { Button } from "@/components/ui/button";
-import { Building, Calendar, LogIn, Menu, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"; // Import AlertDialog
+import { Building, Calendar, LogIn, LogOut, User, Menu, X } from "lucide-react"; // Import LogOut & User
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { isLoggedIn, logout } = useAuth(); // Gunakan hook
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -57,22 +70,55 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-3">
-            <Link to="/login">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-green-600 text-green-600 hover:bg-green-50"
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                Masuk
-              </Button>
-            </Link>
-            <Link to="/booking">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                <Calendar className="h-4 w-4 mr-2" />
-                Daftar Antrian
-              </Button>
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link to="/profil">
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Profil
+                  </Button>
+                </Link>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Keluar
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Konfirmasi Keluar</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Apakah Anda yakin ingin keluar dari akun Anda?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={logout} className="bg-red-500 hover:bg-red-600">Ya, Keluar</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-green-600 text-green-600 hover:bg-green-50"
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Masuk
+                  </Button>
+                </Link>
+                <Link to="/booking">
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Daftar Antrian
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -105,25 +151,43 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 border-t space-y-2">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start border-green-600 text-green-600"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Masuk
-                  </Button>
-                </Link>
-                <Link to="/booking" onClick={() => setIsMenuOpen(false)}>
-                  <Button
-                    size="sm"
-                    className="w-full justify-start bg-green-600 hover:bg-green-700"
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Daftar Antrian
-                  </Button>
-                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <Link to="/profil" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <User className="h-4 w-4 mr-2" />
+                        Profil
+                      </Button>
+                    </Link>
+                    {/* Logout di mobile tidak perlu dialog agar lebih cepat */}
+                    <Button onClick={() => { logout(); setIsMenuOpen(false); }} variant="outline" className="w-full justify-start border-red-500 text-red-500">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Keluar
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start border-green-600 text-green-600"
+                      >
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Masuk
+                      </Button>
+                    </Link>
+                    <Link to="/booking" onClick={() => setIsMenuOpen(false)}>
+                      <Button
+                        size="sm"
+                        className="w-full justify-start bg-green-600 hover:bg-green-700"
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Daftar Antrian
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>

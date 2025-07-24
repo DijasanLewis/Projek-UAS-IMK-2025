@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -335,7 +336,7 @@ export default function Index() {
             popularServices.map((service, index) => (
               <Card
                 key={index}
-                className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer"
+                className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer flex flex-col"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -364,8 +365,8 @@ export default function Index() {
                   <CardTitle className="text-lg">{service.title}</CardTitle>
                   <CardDescription>{service.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <CardContent className="flex-grow">
+                  <div className="flex items-center justify-between text-sm text-gray-500">
                     <span className="bg-yellow-100 text-green-700 px-2 py-1 rounded text-xs">
                       {service.category}
                     </span>
@@ -374,17 +375,19 @@ export default function Index() {
                       {service.estimatedTime}
                     </div>
                   </div>
-                  <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"}>
-                    <Button
-                      className="w-full bg-green-600 hover:bg-green-700"
-                      disabled={!service.available}
-                      variant={service.available ? "default" : "secondary"}
-                    >
-                      {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </Link>
                 </CardContent>
+                <CardFooter>
+                    <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"} className="w-full">
+                        <Button
+                            className="w-full bg-green-600 hover:bg-green-700"
+                            disabled={!service.available}
+                            variant={service.available ? "default" : "secondary"}
+                        >
+                            {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                        </Button>
+                    </Link>
+                </CardFooter>
               </Card>
             ))
           )}
