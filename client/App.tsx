@@ -22,6 +22,7 @@ import Complaint from "./pages/Complaint";
 import Feedback from "./pages/Feedback";
 import Guidebook from "./pages/Guidebook";
 import About from "./pages/About";
+import AgencyProfile from "./pages/AgencyProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/feedback/:token" element={<Feedback />} />
           <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
           <Route path="/syarat-layanan" element={<TermsOfService />} />
+          <Route path="/instansi/:slug" element={<AgencyProfile />} />
           <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
           <Route path="/aduan" element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
