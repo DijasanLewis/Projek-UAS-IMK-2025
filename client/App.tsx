@@ -11,6 +11,8 @@ import Services from "./pages/Services";
 import Login from "./pages/Login";
 import Booking from "./pages/Booking";
 import News from "./pages/News";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import Complaint from "./pages/Complaint";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/booking" element={<Booking />} />
           <Route path="/berita" element={<News />} />
           <Route path="/aduan" element={<Complaint />} />
+          <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
+          <Route path="/syarat-layanan" element={<TermsOfService />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

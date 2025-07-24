@@ -723,18 +723,18 @@ export default function Index() {
               undang-undang.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a
-                href="#"
+              <Link
+                to="/kebijakan-privasi"
                 className="text-green-200 hover:text-white transition-colors text-sm"
               >
                 Kebijakan Privasi
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/syarat-layanan"
                 className="text-green-200 hover:text-white transition-colors text-sm"
               >
                 Syarat Layanan
-              </a>
+              </Link>
             </div>
           </div>
         </div>
