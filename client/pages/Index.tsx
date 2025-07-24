@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton"; 
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,10 +50,32 @@ type Service = {
   available: boolean;
 };
 
+const ServiceCardSkeleton = () => (
+  <Card className="border-green-100">
+    <CardHeader>
+      <div className="flex items-start justify-between">
+        <Skeleton className="h-12 w-12 rounded-lg" />
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </div>
+      <Skeleton className="h-6 w-3/4 mt-2 rounded" />
+      <Skeleton className="h-4 w-1/2 mt-1 rounded" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center justify-between mb-4">
+        <Skeleton className="h-5 w-24 rounded" />
+        <Skeleton className="h-5 w-20 rounded" />
+      </div>
+      <Skeleton className="h-10 w-full rounded-md" />
+    </CardContent>
+  </Card>
+);
+
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Service[]>([]);
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const allServices: Service[] = [
     {
@@ -121,15 +144,15 @@ export default function Index() {
 
   // Efek untuk memfilter layanan berdasarkan input pencarian
   useEffect(() => {
-    if (searchQuery.trim() !== "") {
-      const results = fuse.search(searchQuery);
-      // Hasil dari Fuse berisi item asli di dalam properti 'item'
-      const filteredServices = results.map(result => result.item);
-      setSuggestions(filteredServices);
-    } else {
-      setSuggestions([]);
-    }
-  }, [searchQuery]);
+    // TODO: Ganti blok ini dengan pemanggilan API sungguhan untuk layanan populer
+    // Simulasi pengambilan data dari API dengan delay 0.5 detik
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    // Cleanup timer
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,7 +168,7 @@ export default function Index() {
     { name: "PDAM", count: 4, icon: <Home className="h-5 w-5" /> },
   ];
 
-  const popularServices = allServices.slice(0, 6);
+  const popularServices = allServices.slice(0, 6); // Data masih statis
 
   const stats = [
     {
@@ -165,6 +188,17 @@ export default function Index() {
     },
     { label: "Rating Kepuasan", value: "4.8/5", description: "Dari pengguna" },
   ];
+
+  // useEffect untuk mensimulasikan pemuatan data
+  useEffect(() => {
+    // Simulasi pengambilan data dari API dengan delay 1.5 detik
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    // Cleanup timer jika komponen di-unmount sebelum selesai
+    return () => clearTimeout(timer);
+  }, []); // Array dependensi kosong agar hanya berjalan sekali saat komponen dimuat
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -291,7 +325,14 @@ export default function Index() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {popularServices.map((service, index) => (
+          {isLoading ? (
+            // Tampilkan skeleton jika sedang loading
+            Array.from({ length: 6 }).map((_, index) => (
+              <ServiceCardSkeleton key={index} />
+            ))
+          ) : (
+            // Tampilkan data jika sudah selesai loading
+            popularServices.map((service, index) => (
               <Card
                 key={index}
                 className="hover:shadow-lg transition-shadow cursor-pointer border-green-100"
@@ -299,7 +340,9 @@ export default function Index() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div
-                      className={`p-3 rounded-lg ${service.available ? "bg-green-100" : "bg-gray-100"}`}
+                      className={`p-3 rounded-lg ${
+                        service.available ? "bg-green-100" : "bg-gray-100"
+                      }`}
                     >
                       <div
                         className={
@@ -337,15 +380,14 @@ export default function Index() {
                       disabled={!service.available}
                       variant={service.available ? "default" : "secondary"}
                     >
-                      {service.available
-                        ? "Daftar Antrian"
-                        : "Tidak Tersedia"}
+                      {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
-            ))}
+            ))
+          )}
           </div>
         </div>
       </section>
