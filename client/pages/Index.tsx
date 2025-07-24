@@ -331,13 +331,15 @@ export default function Index() {
                       {service.estimatedTime}
                     </div>
                   </div>
-                  <Link to={service.available ? "/booking" : "#"}>
+                  <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"}>
                     <Button
                       className="w-full bg-green-600 hover:bg-green-700"
                       disabled={!service.available}
                       variant={service.available ? "default" : "secondary"}
                     >
-                      {service.available ? "Daftar Antrian" : "Tidak Tersedia"}
+                      {service.available
+                        ? "Daftar Antrian"
+                        : "Tidak Tersedia"}
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                   </Link>
@@ -641,7 +643,7 @@ export default function Index() {
               <ul className="space-y-2 text-green-200">
                 <li>
                   <Link
-                    to="/layanan"
+                    to="/booking?layanan=KTP%20Elektronik"
                     className="hover:text-white transition-colors"
                   >
                     KTP Elektronik
@@ -649,7 +651,7 @@ export default function Index() {
                 </li>
                 <li>
                   <Link
-                    to="/layanan"
+                    to="/booking?layanan=Akta%20Kelahiran"
                     className="hover:text-white transition-colors"
                   >
                     Akta Kelahiran
@@ -657,7 +659,7 @@ export default function Index() {
                 </li>
                 <li>
                   <Link
-                    to="/layanan"
+                    to="/booking?layanan=Izin%20Usaha"
                     className="hover:text-white transition-colors"
                   >
                     Izin Usaha
@@ -665,7 +667,7 @@ export default function Index() {
                 </li>
                 <li>
                   <Link
-                    to="/layanan"
+                    to="/booking?layanan=Perpanjangan%20SIM"
                     className="hover:text-white transition-colors"
                   >
                     Perpanjangan SIM

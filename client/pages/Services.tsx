@@ -333,7 +333,7 @@ export default function Services() {
                       </ul>
                     </div>
 
-                    <Link to={service.available ? "/booking" : "#"}>
+                    <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"}>
                       <Button
                         className="w-full bg-green-600 hover:bg-green-700"
                         disabled={!service.available}

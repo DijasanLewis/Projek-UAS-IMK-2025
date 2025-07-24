@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,12 +30,17 @@ import {
   FileText,
   CheckCircle,
   AlertTriangle,
+  Search,
 } from "lucide-react";
 
 export default function Booking() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [searchParams] = useSearchParams();
+  const serviceFromUrl = searchParams.get("layanan");
+
+  // Langsung ke langkah 2 jika layanan sudah dipilih dari URL
+  const [currentStep, setCurrentStep] = useState(serviceFromUrl ? 2 : 1);
   const [formData, setFormData] = useState({
-    layanan: "",
+    layanan: serviceFromUrl || "",
     tanggal: "",
     waktu: "",
     nama: "",
@@ -44,59 +50,85 @@ export default function Booking() {
     keperluan: "",
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAllServices, setShowAllServices] = useState(false);
+
+  // State untuk menyimpan slot waktu yang tersedia
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+
   const services = [
-    {
-      id: "ktp",
-      name: "KTP Elektronik",
-      category: "Kependudukan",
-      estimatedTime: "30 menit",
-      available: true,
-    },
-    {
-      id: "akta-lahir",
-      name: "Akta Kelahiran",
-      category: "Catatan Sipil",
-      estimatedTime: "45 menit",
-      available: true,
-    },
-    {
-      id: "sim",
-      name: "Perpanjangan SIM",
-      category: "Kepolisian",
-      estimatedTime: "1 jam",
-      available: true,
-    },
-    {
-      id: "izin-usaha",
-      name: "Izin Usaha",
-      category: "DPMPTSP",
-      estimatedTime: "2 jam",
-      available: false,
-    },
+    { id: "KTP Elektronik", name: "KTP Elektronik", category: "Kependudukan", estimatedTime: "30 menit", available: true },
+    { id: "Akta Kelahiran", name: "Akta Kelahiran", category: "Catatan Sipil", estimatedTime: "45 menit", available: true },
+    { id: "Perpanjangan SIM", name: "Perpanjangan SIM", category: "Kepolisian", estimatedTime: "1 jam", available: true },
+    { id: "Izin Usaha Perdagangan", name: "Izin Usaha Perdagangan", category: "DPMPTSP", estimatedTime: "2 jam", available: false },
+    { id: "Pembayaran PDAM", name: "Pembayaran PDAM", category: "PDAM", estimatedTime: "15 menit", available: true },
+    { id: "Keterangan Antar Kerja", name: "Keterangan Antar Kerja", category: "Disnaker", estimatedTime: "1 jam", available: true },
+    { id: "SKCK", name: "SKCK", category: "Kepolisian", estimatedTime: "2 jam", available: true },
+    { id: "Izin Keramaian", name: "Izin Keramaian", category: "Kepolisian", estimatedTime: "3 hari", available: true },
+    { id: "Sertifikat Tanah", name: "Sertifikat Tanah", category: "BPN", estimatedTime: "1 minggu", available: true },
+    { id: "Izin Mendirikan Bangunan", name: "Izin Mendirikan Bangunan", category: "DPMPTSP", estimatedTime: "2 minggu", available: true },
+    { id: "Kartu Keluarga", name: "Kartu Keluarga", category: "Kependudukan", estimatedTime: "45 menit", available: true },
+    { id: "Akta Kematian", name: "Akta Kematian", category: "Catatan Sipil", estimatedTime: "30 menit", available: true },
   ];
 
-  const timeSlots = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
+  const allTimeSlots = [
+    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
   ];
+
+  // useEffect untuk memfilter waktu yang sudah lewat hari ini
+  useEffect(() => {
+    if (!formData.tanggal) {
+      setAvailableTimeSlots(allTimeSlots);
+      return;
+    }
+
+    const now = new Date();
+    const selectedDate = new Date(formData.tanggal);
+    
+    // Reset jam, menit, detik untuk perbandingan tanggal saja
+    now.setHours(0, 0, 0, 0);
+    // Tambahkan penanganan zona waktu agar perbandingan tanggal akurat
+    const selectedDateLocal = new Date(selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000);
+    selectedDateLocal.setHours(0, 0, 0, 0);
+
+    if (selectedDateLocal.getTime() > now.getTime()) {
+      // Jika tanggal yang dipilih adalah di masa depan, semua slot tersedia
+      setAvailableTimeSlots(allTimeSlots);
+    } else if (selectedDateLocal.getTime() === now.getTime()) {
+      // Jika tanggal yang dipilih adalah hari ini, filter waktu yang sudah lewat
+      const currentTime = new Date();
+      const currentHours = currentTime.getHours();
+      const currentMinutes = currentTime.getMinutes();
+
+      const filteredSlots = allTimeSlots.filter(slot => {
+        const [slotHours, slotMinutes] = slot.split(':').map(Number);
+        if (slotHours > currentHours) {
+          return true;
+        }
+        if (slotHours === currentHours && slotMinutes > currentMinutes) {
+          return true;
+        }
+        return false;
+      });
+      setAvailableTimeSlots(filteredSlots);
+    } else {
+      // Jika tanggal yang dipilih di masa lalu
+      setAvailableTimeSlots([]);
+    }
+  }, [formData.tanggal]);
+
 
   const nextStep = () => {
     if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
+    // Jika melewati langkah pertama, kembali ke halaman layanan
+    if (currentStep === 2 && serviceFromUrl) {
+        window.history.back();
+        return;
+    }
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
@@ -107,12 +139,24 @@ export default function Booking() {
     setCurrentStep(4); // Success step
   };
 
+  const fuse = new Fuse(services, {
+    keys: ['name', 'category'], // Cari berdasarkan nama dan kategori
+    threshold: 0.4,
+  });
+
+  const filteredServices = searchTerm.trim()
+      ? fuse.search(searchTerm).map(result => result.item)
+      : services;
+
+  const displayedServices = showAllServices ? filteredServices : filteredServices.slice(0, 3);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50">
       <Navbar />
 
-      {/* Progress Steps */}
+      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Progress Steps */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center space-x-4">
             {[1, 2, 3].map((step) => (
@@ -144,16 +188,28 @@ export default function Booking() {
             <>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <FileText className="h-5 w-5 mr-2 text-green-600" />
-                  Pilih Layanan
+                    <FileText className="h-5 w-5 mr-2 text-green-600" />
+                    Pilih Layanan
                 </CardTitle>
                 <CardDescription>
-                  Pilih layanan yang ingin Anda akses
+                    Pilih layanan yang ingin Anda akses atau cari di bawah ini
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Kolom Pencarian Baru */}
+                <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Cari layanan..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 border-green-200 focus:border-green-500"
+                    />
+                </div>
+
+                {/* Daftar Layanan Dinamis */}
                 <div className="grid gap-4">
-                  {services.map((service) => (
+                  {displayedServices.map((service) => (
                     <div
                       key={service.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${
@@ -196,15 +252,28 @@ export default function Booking() {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-end mt-6">
-                  <Button
-                    onClick={nextStep}
-                    disabled={!formData.layanan}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Lanjutkan
-                  </Button>
+
+                {/* Tombol Tampilkan Semua/Sedikit dan Lanjutkan */}
+                <div className="flex justify-between items-center mt-6">
+                    {filteredServices.length > 3 && (
+                        <Button
+                            variant="link"
+                            onClick={() => setShowAllServices(!showAllServices)}
+                            className="text-green-600 p-0"
+                        >
+                            {showAllServices ? "Tampilkan lebih sedikit" : "Tampilkan semua layanan"}
+                        </Button>
+                    )}
+                    <div className="flex-grow"></div> {/* Spacer */}
+                    <Button
+                        onClick={nextStep}
+                        disabled={!formData.layanan}
+                        className="bg-green-600 hover:bg-green-700"
+                    >
+                        Lanjutkan
+                    </Button>
                 </div>
+
               </CardContent>
             </>
           )}
@@ -231,7 +300,7 @@ export default function Booking() {
                       type="date"
                       value={formData.tanggal}
                       onChange={(e) =>
-                        setFormData({ ...formData, tanggal: e.target.value })
+                        setFormData({ ...formData, tanggal: e.target.value, waktu: "" }) // Reset waktu jika tanggal berubah
                       }
                       className="border-green-200 focus:border-green-500"
                       min={new Date().toISOString().split("T")[0]}
@@ -247,12 +316,13 @@ export default function Booking() {
                       onValueChange={(value) =>
                         setFormData({ ...formData, waktu: value })
                       }
+                      disabled={!formData.tanggal || availableTimeSlots.length === 0}
                     >
                       <SelectTrigger className="border-green-200 focus:border-green-500">
-                        <SelectValue placeholder="Pilih waktu" />
+                        <SelectValue placeholder={!formData.tanggal ? "Pilih tanggal dulu" : availableTimeSlots.length === 0 ? "Jadwal penuh/lewat" : "Pilih waktu"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {timeSlots.map((time) => (
+                        {availableTimeSlots.map((time) => (
                           <SelectItem key={time} value={time}>
                             {time} WIB
                           </SelectItem>
@@ -339,13 +409,14 @@ export default function Booking() {
                       <Input
                         id="nik"
                         type="text"
-                        placeholder="Nomor Induk Kependudukan"
+                        placeholder="16 digit NIK"
                         value={formData.nik}
-                        onChange={(e) =>
-                          setFormData({ ...formData, nik: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, nik: e.target.value.replace(/\D/g, '') })}
                         className="border-green-200 focus:border-green-500"
                         maxLength={16}
+                        minLength={16}
+                        pattern="\d{16}"
+                        title="NIK harus terdiri dari 16 digit angka."
                         required
                       />
                     </div>
@@ -358,13 +429,13 @@ export default function Booking() {
                       </Label>
                       <Input
                         id="telepon"
-                        type="tel"
-                        placeholder="08xxxxxxxxxx"
+                        type="text"
+                        placeholder="Contoh: 08123456789"
                         value={formData.telepon}
-                        onChange={(e) =>
-                          setFormData({ ...formData, telepon: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, telepon: e.target.value.replace(/\D/g, '') })}
                         className="border-green-200 focus:border-green-500"
+                        pattern="[0-9]+"
+                        title="Nomor telepon hanya boleh berisi angka."
                         required
                       />
                     </div>
@@ -451,7 +522,7 @@ export default function Booking() {
                       {services.find((s) => s.id === formData.layanan)?.name}
                     </p>
                     <p>
-                      <strong>Tanggal:</strong> {formData.tanggal}
+                      <strong>Tanggal:</strong> {new Date(formData.tanggal).toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                     <p>
                       <strong>Waktu:</strong> {formData.waktu} WIB
