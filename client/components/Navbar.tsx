@@ -26,6 +26,7 @@ export default function Navbar() {
 
   const navItems = [
     { path: "/", label: "Beranda" },
+    { path: "/profil-mpp", label: "Profil MPP" },
     { path: "/layanan", label: "Layanan" },
     { path: "/berita", label: "Berita" },
     { path: "/panduan", label: "Panduan" },

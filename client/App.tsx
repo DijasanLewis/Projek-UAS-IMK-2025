@@ -21,6 +21,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Complaint from "./pages/Complaint";
 import Feedback from "./pages/Feedback";
 import Guidebook from "./pages/Guidebook";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
         <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/profil-mpp" element={<About />} />
           <Route path="/layanan" element={<Services />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
