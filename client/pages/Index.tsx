@@ -335,7 +335,7 @@ export default function Index() {
             popularServices.map((service, index) => (
               <Card
                 key={index}
-                className="hover:shadow-lg transition-shadow cursor-pointer border-green-100"
+                className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -461,7 +461,7 @@ export default function Index() {
             ].map((inst, index) => (
               <Card
                 key={index}
-                className="text-center hover:shadow-md transition-shadow border-green-100"
+                className="text-center hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-in-out border-green-100"
               >
                 <CardContent className="p-4">
                   <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">

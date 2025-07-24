@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -191,7 +192,7 @@ export default function News() {
               <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
               <h2 className="text-xl font-bold text-gray-900">Berita Utama</h2>
             </div>
-            <Card className="border-green-100 overflow-hidden">
+            <Card className="border-green-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
               <div className="md:flex">
                 <div className="md:w-1/2">
                   <img
@@ -240,7 +241,7 @@ export default function News() {
               {regularNews.map((news) => (
                 <Card
                   key={news.id}
-                  className="border-green-100 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
+                  className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer overflow-hidden flex flex-col"
                 >
                   <div className="aspect-video overflow-hidden">
                     <img
@@ -249,6 +250,7 @@ export default function News() {
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>
+                  <div className="flex-grow">
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge
@@ -270,21 +272,27 @@ export default function News() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {formatDate(news.date)}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                      >
-                        Baca
-                        <ChevronRight className="h-3 w-3 ml-1" />
-                      </Button>
-                    </div>
+                      <CardDescription className="text-sm">
+                          {news.excerpt}
+                      </CardDescription>
                   </CardContent>
+                </div>
+                  <CardFooter className="pt-4">
+                    <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {formatDate(news.date)}
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        >
+                            Baca
+                            <ChevronRight className="h-3 w-3 ml-1" />
+                        </Button>
+                    </div>
+                  </CardFooter>
                 </Card>
               ))}
             </div>

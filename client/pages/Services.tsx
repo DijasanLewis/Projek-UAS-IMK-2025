@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -277,7 +278,7 @@ export default function Services() {
             {filteredServices.map((service) => (
               <Card
                 key={service.id}
-                className="border-green-100 hover:shadow-lg transition-shadow cursor-pointer"
+                className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer flex flex-col"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -332,21 +333,22 @@ export default function Services() {
                         ))}
                       </ul>
                     </div>
-
-                    <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"}>
-                      <Button
-                        className="w-full bg-green-600 hover:bg-green-700"
-                        disabled={!service.available}
-                        variant={service.available ? "default" : "secondary"}
-                      >
-                        {service.available
-                          ? "Daftar Antrian"
-                          : "Tidak Tersedia"}
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <Link to={service.available ? `/booking?layanan=${encodeURIComponent(service.title)}` : "#"} className="w-full">
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      disabled={!service.available}
+                      variant={service.available ? "default" : "secondary"}
+                    >
+                      {service.available
+                        ? "Daftar Antrian"
+                        : "Tidak Tersedia"}
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
+                </CardFooter>
               </Card>
             ))}
           </div>
