@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion"; 
 import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export default function News() {
   const newsData = [
     {
       id: 1,
+      slug: "peluncuran-layanan-digital-baru",
       title: "Peluncuran Layanan Digital Baru MPP Kota Bekasi",
       excerpt:
         "MPP Kota Bekasi meluncurkan sistem antrian digital yang memudahkan masyarakat dalam mengakses layanan publik...",
@@ -40,9 +42,22 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg",
       featured: true,
+      content: `
+        <p>BEKASI – Mal Pelayanan Publik (MPP) Kota Bekasi hari ini secara resmi meluncurkan sistem layanan digital terbaru yang diberi nama "Bekasi Smart Service". Sistem ini dirancang untuk memodernisasi dan menyederhanakan proses pengajuan layanan publik bagi seluruh warga Kota Bekasi.</p>
+        <p>Kepala MPP, Bapak H. Sanwani, dalam sambutannya menyatakan bahwa inovasi ini adalah bagian dari komitmen pemerintah kota untuk mewujudkan birokrasi yang efisien dan transparan. "Dengan adanya sistem antrian digital dan pengajuan dokumen online, kami berharap dapat memangkas waktu tunggu dan menghilangkan praktik percaloan," ujarnya.</p>
+        <h3 class="text-xl font-semibold mt-4">Fitur Utama Layanan Digital</h3>
+        <ul class="list-disc pl-5 mt-2">
+          <li>Pendaftaran antrian online melalui situs web dan aplikasi mobile.</li>
+          <li>Notifikasi jadwal antrian secara real-time melalui SMS dan Email.</li>
+          <li>Pengunggahan dokumen persyaratan secara digital.</li>
+          <li>Pelacakan status pengajuan layanan secara mandiri.</li>
+        </ul>
+        <p class="mt-4">Sistem ini sudah dapat diakses oleh publik mulai hari ini. Masyarakat diimbau untuk memanfaatkan fasilitas ini untuk mendapatkan pelayanan yang lebih cepat dan mudah.</p>
+      `
     },
     {
       id: 2,
+      slug: "jam-operasional-libur-natal-dan-tahun-baru",
       title: "Jam Operasional Khusus Periode Libur Natal dan Tahun Baru",
       excerpt:
         "Pemberitahuan perubahan jam operasional MPP Kota Bekasi selama periode libur Natal dan Tahun Baru 2024...",
@@ -52,9 +67,11 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg",
       featured: false,
+      content: "<p>Sehubungan dengan hari libur nasional Natal dan Tahun Baru, MPP Kota Bekasi akan memberlakukan jam operasional khusus. Pada tanggal 24-26 Desember 2024 dan 31 Desember 2024 - 1 Januari 2025, layanan akan ditutup. Layanan akan kembali normal pada tanggal 2 Januari 2025. Harap maklum.</p>"
     },
     {
       id: 3,
+      slug: "peningkatan-fasilitas-ruang-tunggu",
       title: "Peningkatan Fasilitas Ruang Tunggu MPP",
       excerpt:
         "MPP Kota Bekasi telah menyelesaikan renovasi ruang tunggu dengan fasilitas yang lebih nyaman untuk pengunjung...",
@@ -64,9 +81,11 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg",
       featured: false,
+      content: "<p>Demi meningkatkan kenyamanan pengunjung, MPP Kota Bekasi telah menyelesaikan renovasi ruang tunggu utama. Fasilitas baru yang ditambahkan antara lain sofa yang lebih nyaman, stasiun pengisian daya perangkat elektronik, serta akses Wi-Fi gratis berkecepatan tinggi. Diharapkan dengan adanya peningkatan ini, masyarakat dapat menunggu antrian dengan lebih nyaman.</p>"
     },
     {
       id: 4,
+      slug: "workshop-digitalisasi-layanan-publik",
       title: "Workshop Digitalisasi Layanan Publik",
       excerpt:
         "MPP Kota Bekasi mengadakan workshop untuk sosialisasi penggunaan layanan digital kepada masyarakat...",
@@ -76,9 +95,11 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3184639/pexels-photo-3184639.jpeg",
       featured: false,
+      content: "<p>Sebagai bagian dari peluncuran sistem layanan digital baru, MPP Kota Bekasi mengadakan workshop gratis bagi masyarakat umum. Acara ini bertujuan untuk memberikan edukasi dan sosialisasi mengenai cara penggunaan platform digital untuk mendaftar antrian dan mengajukan layanan. Workshop akan diadakan setiap hari Sabtu selama bulan Desember.</p>"
     },
     {
       id: 5,
+      slug: "penghargaan-pelayanan-terbaik-2024",
       title: "Penghargaan Pelayanan Terbaik Tahun 2024",
       excerpt:
         "MPP Kota Bekasi meraih penghargaan sebagai mal pelayanan publik terbaik di Jawa Barat tahun 2024...",
@@ -88,9 +109,11 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg",
       featured: false,
+      content: "<p>MPP Kota Bekasi berhasil meraih penghargaan 'Pelayanan Publik Prima' tingkat Provinsi Jawa Barat tahun 2024. Penghargaan ini diberikan atas komitmen MPP Kota Bekasi dalam memberikan inovasi dan kemudahan akses layanan bagi masyarakat. Ini menjadi motivasi bagi kami untuk terus berbenah dan meningkatkan kualitas pelayanan.</p>"
     },
     {
       id: 6,
+      slug: "kerjasama-baru-dengan-bank",
       title: "Kerjasama Baru dengan Bank untuk Pembayaran Digital",
       excerpt:
         "MPP Kota Bekasi menjalin kerjasama dengan berbagai bank untuk memudahkan pembayaran layanan secara digital...",
@@ -100,6 +123,7 @@ export default function News() {
       image:
         "https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg",
       featured: false,
+      content: "<p>Untuk mendukung gerakan non-tunai, MPP Kota Bekasi kini telah menjalin kerjasama dengan beberapa bank nasional untuk menyediakan opsi pembayaran digital. Masyarakat kini dapat membayar retribusi layanan menggunakan kartu debit, kartu kredit, atau QRIS di semua loket pembayaran. Hal ini diharapkan dapat mempercepat proses transaksi dan mengurangi antrian di kasir.</p>"
     },
   ];
 
@@ -119,6 +143,8 @@ export default function News() {
 
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
+  const [visibleNewsCount, setVisibleNewsCount] = useState(3);
+
   const filteredNews = (() => {
     // Lakukan pencarian fuzzy jika ada query
     const searchedNews = searchQuery.trim()
@@ -133,8 +159,11 @@ export default function News() {
     });
   })();
 
+  // Logika untuk menampilkan berita dan tombol
   const featuredNews = newsData.find((news) => news.featured);
   const regularNews = filteredNews.filter((news) => !news.featured);
+  const visibleNews = regularNews.slice(0, visibleNewsCount);
+  const hasMoreNews = visibleNewsCount < regularNews.length;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -236,64 +265,67 @@ export default function News() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">
             {selectedCategory === "Semua" ? "Berita Terbaru" : selectedCategory}
           </h2>
-          {regularNews.length > 0 ? (
+          {visibleNews.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {regularNews.map((news) => (
-                <Card
-                  key={news.id}
-                  className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer overflow-hidden flex flex-col"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={news.image}
-                      alt={news.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="flex-grow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge
-                        variant="secondary"
-                        className="bg-yellow-100 text-green-700"
-                      >
-                        {news.category}
-                      </Badge>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Eye className="h-3 w-3 mr-1" />
-                        {news.views}
+              {visibleNews.map((news) => (
+                <Link key={news.id} to={`/berita/${news.slug}`} state={{ news: news }}>
+                  <motion.div
+                    layoutId={`news-card-${news.id}`}
+                    className="h-full"
+                  >
+                    <Card
+                      className="border-green-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer overflow-hidden flex flex-col h-full"
+                    >
+                      <motion.div layoutId={`news-image-${news.id}`} className="aspect-video overflow-hidden">
+                        <img
+                          src={news.image}
+                          alt={news.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </motion.div>
+                      <div className="flex-grow flex flex-col">
+                        <CardHeader className="flex-grow">
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge
+                              variant="secondary"
+                              className="bg-yellow-100 text-green-700"
+                            >
+                              {news.category}
+                            </Badge>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Eye className="h-3 w-3 mr-1" />
+                              {news.views}
+                            </div>
+                          </div>
+                          <motion.div layoutId={`news-title-${news.id}`}>
+                            <CardTitle className="text-lg leading-tight">
+                              {news.title}
+                            </CardTitle>
+                          </motion.div>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="text-sm">
+                            {news.excerpt}
+                          </CardDescription>
+                        </CardContent>
                       </div>
-                    </div>
-                    <CardTitle className="text-lg leading-tight">
-                      {news.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {news.excerpt}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      <CardDescription className="text-sm">
-                          {news.excerpt}
-                      </CardDescription>
-                  </CardContent>
-                </div>
-                  <CardFooter className="pt-4">
-                    <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center text-sm text-gray-500">
+                      <CardFooter className="pt-4 mt-auto">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="h-4 w-4 mr-1" />
                             {formatDate(news.date)}
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                        >
+                          </div>
+                          <div
+                            className="text-green-600 font-semibold text-sm inline-flex items-center"
+                          >
                             Baca
                             <ChevronRight className="h-3 w-3 ml-1" />
-                        </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           ) : (
@@ -311,18 +343,19 @@ export default function News() {
           )}
         </div>
 
-        {/* Load More */}
-        {regularNews.length > 0 && (
+        {/* Tombol Muat Lebih Banyak */}
+        {hasMoreNews && (
           <div className="text-center">
             <Button
               variant="outline"
               className="border-green-600 text-green-600 hover:bg-green-50"
+              onClick={() => setVisibleNewsCount(regularNews.length)}
             >
               Muat Lebih Banyak
             </Button>
           </div>
         )}
-      </div>
+     </div>
     </div>
   );
 }
