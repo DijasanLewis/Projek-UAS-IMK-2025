@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -33,6 +37,14 @@ import {
   Search,
 } from "lucide-react";
 
+const formSchema = z.object({
+  nama: z.string().min(2, { message: "Nama lengkap harus diisi." }),
+  nik: z.string().regex(/^\d{16}$/, { message: "NIK harus terdiri dari 16 digit angka." }),
+  telepon: z.string().min(10, { message: "Nomor telepon minimal 10 digit." }).regex(/^[0-9]+$/, { message: "Hanya boleh berisi angka." }),
+  email: z.string().email({ message: "Format email tidak valid." }),
+  keperluan: z.string().optional(),
+});
+
 export default function Booking() {
   const [searchParams] = useSearchParams();
   const serviceFromUrl = searchParams.get("layanan");
@@ -49,6 +61,26 @@ export default function Booking() {
     email: "",
     keperluan: "",
   });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur", // Validasi akan berjalan saat pengguna keluar dari input
+    defaultValues: {
+        nama: "",
+        nik: "",
+        telepon: "",
+        email: "",
+        keperluan: "",
+      },
+  });
+
+  function onFormSubmit(values: z.infer<typeof formSchema>) {
+    // Gabungkan data dari form dengan data dari langkah sebelumnya
+    const finalData = { ...formData, ...values };
+    setFormData(finalData);
+    console.log("Booking data:", finalData);
+    setCurrentStep(4); // Lanjutkan ke halaman sukses
+  }
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showAllServices, setShowAllServices] = useState(false);
@@ -372,128 +404,135 @@ export default function Booking() {
             </>
           )}
 
-          {currentStep === 3 && (
-            <>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="h-5 w-5 mr-2 text-green-600" />
-                  Data Pemohon
-                </CardTitle>
-                <CardDescription>
-                  Lengkapi data diri untuk booking antrian
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="nama" className="text-sm font-medium">
-                        Nama Lengkap
-                      </Label>
-                      <Input
-                        id="nama"
-                        type="text"
-                        placeholder="Masukkan nama lengkap"
-                        value={formData.nama}
-                        onChange={(e) =>
-                          setFormData({ ...formData, nama: e.target.value })
-                        }
-                        className="border-green-200 focus:border-green-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="nik" className="text-sm font-medium">
-                        NIK
-                      </Label>
-                      <Input
-                        id="nik"
-                        type="text"
-                        placeholder="16 digit NIK"
-                        value={formData.nik}
-                        onChange={(e) => setFormData({ ...formData, nik: e.target.value.replace(/\D/g, '') })}
-                        className="border-green-200 focus:border-green-500"
-                        maxLength={16}
-                        minLength={16}
-                        pattern="\d{16}"
-                        title="NIK harus terdiri dari 16 digit angka."
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="telepon" className="text-sm font-medium">
-                        Nomor Telepon
-                      </Label>
-                      <Input
-                        id="telepon"
-                        type="text"
-                        placeholder="Contoh: 08123456789"
-                        value={formData.telepon}
-                        onChange={(e) => setFormData({ ...formData, telepon: e.target.value.replace(/\D/g, '') })}
-                        className="border-green-200 focus:border-green-500"
-                        pattern="[0-9]+"
-                        title="Nomor telepon hanya boleh berisi angka."
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-sm font-medium">
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="nama@email.com"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        className="border-green-200 focus:border-green-500"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="keperluan" className="text-sm font-medium">
-                      Keperluan (Opsional)
-                    </Label>
-                    <Textarea
-                      id="keperluan"
-                      placeholder="Jelaskan keperluan atau informasi tambahan"
-                      value={formData.keperluan}
-                      onChange={(e) =>
-                        setFormData({ ...formData, keperluan: e.target.value })
-                      }
-                      className="border-green-200 focus:border-green-500"
-                      rows={3}
+        {currentStep === 3 && (
+        <>
+            <CardHeader>
+            <CardTitle className="flex items-center">
+                <User className="h-5 w-5 mr-2 text-green-600" />
+                Data Pemohon
+            </CardTitle>
+            <CardDescription>
+                Lengkapi data diri untuk booking antrian
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                    control={form.control}
+                    name="nama"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Nama Lengkap</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Masukkan nama lengkap" {...field} className="border-green-200 focus:border-green-500"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
                     />
-                  </div>
+                    <FormField
+                    control={form.control}
+                    name="nik"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>NIK</FormLabel>
+                        <FormControl>
+                        <Input 
+                            placeholder="16 digit NIK" 
+                            {...field} 
+                            maxLength={16} 
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
+                                field.onChange(value); // Update nilai form React Hook Form
+                                setFormData({ ...formData, nik: value }); // Update state formData
+                            }} 
+                            inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
+                            pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
+                            className="border-green-200 focus:border-green-500" 
+                        />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
 
-                  <div className="flex justify-between mt-6">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={prevStep}
-                      className="border-green-600 text-green-600"
-                    >
-                      Kembali
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                    control={form.control}
+                    name="telepon"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Nomor Telepon</FormLabel>
+                        <FormControl>
+                        <Input 
+                          placeholder="Contoh: 08123456789" 
+                          {...field} 
+                          type="tel" // Menggunakan type="tel"
+                          inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
+                          pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
+                          onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
+                              field.onChange(value); // Update nilai form React Hook Form
+                              setFormData({ ...formData, telepon: value }); // Update state formData
+                          }}
+                          className="border-green-200 focus:border-green-500" 
+                        />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                            <Input placeholder="nama@email.com" {...field} className="border-green-200 focus:border-green-500" />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                
+                <FormField
+                    control={form.control}
+                    name="keperluan"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Keperluan (Opsional)</FormLabel>
+                        <FormControl>
+                            <Textarea
+                                placeholder="Jelaskan keperluan atau informasi tambahan"
+                                className="border-green-200 focus:border-green-500"
+                                rows={3}
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <div className="flex justify-between mt-6 pt-2">
+                    <Button type="button" variant="outline" onClick={prevStep} className="border-green-600 text-green-600">
+                    Kembali
                     </Button>
-                    <Button
-                      type="submit"
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Buat Booking
+                    <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Buat Booking
                     </Button>
-                  </div>
+                </div>
                 </form>
-              </CardContent>
-            </>
-          )}
+            </Form>
+            </CardContent>
+        </>
+        )}
 
           {currentStep === 4 && (
             <>

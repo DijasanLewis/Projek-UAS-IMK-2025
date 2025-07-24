@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +37,16 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+
+const complaintSchema = z.object({
+  nama: z.string().min(2, { message: "Nama lengkap harus diisi." }),
+  email: z.string().email({ message: "Format email tidak valid." }),
+  telepon: z.string().min(10, { message: "Nomor telepon minimal 10 digit." }).regex(/^[0-9]+$/, { message: "Hanya boleh berisi angka." }),
+  kategori: z.string({ required_error: "Kategori aduan harus dipilih." }),
+  judul: z.string().min(1, { message: "Judul aduan tolong diisi." }),
+  deskripsi: z.string().min(1, { message: "Deskripsi aduan tolong diisi." }),
+  bukti: z.any().optional(), // Validasi file bisa lebih kompleks, kita biarkan opsional
+});
 
 export default function Complaint() {
   const [activeTab, setActiveTab] = useState("buat");
@@ -83,6 +97,24 @@ export default function Complaint() {
         "Laporan Anda telah diterima dan sedang ditinjau oleh supervisor.",
     },
   ];
+
+  const form = useForm<z.infer<typeof complaintSchema>>({
+    resolver: zodResolver(complaintSchema),
+    mode: "onBlur",
+    defaultValues: {
+      nama: "",
+      email: "",
+      telepon: "",
+      judul: "",
+      deskripsi: "",
+    },
+  });
+
+  function onComplaintSubmit(values: z.infer<typeof complaintSchema>) {
+    console.log("Complaint data:", values);
+    alert("Aduan Anda berhasil dikirim!"); // Nanti bisa diganti dengan toast notifikasi
+    form.reset(); 
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,116 +190,121 @@ export default function Complaint() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="nama" className="text-sm font-medium">
-                      Nama Lengkap
-                    </Label>
-                    <Input
-                      id="nama"
-                      type="text"
-                      placeholder="Masukkan nama lengkap"
-                      value={formData.nama}
-                      onChange={(e) =>
-                        setFormData({ ...formData, nama: e.target.value })
-                      }
-                      className="border-green-200 focus:border-green-500"
-                      required
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onComplaintSubmit)} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="nama"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Lengkap</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Masukkan nama lengkap" {...field} className="border-green-200 focus:border-green-500" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="nama@email.com" {...field} className="border-green-200 focus:border-green-500" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="email" className="text-sm font-medium">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="nama@email.com"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="border-green-200 focus:border-green-500"
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="telepon" className="text-sm font-medium">
-                      Nomor Telepon
-                    </Label>
-                    <Input
-                      id="telepon"
-                      type="tel"
-                      placeholder="08xxxxxxxxxx"
-                      value={formData.telepon}
-                      onChange={(e) =>
-                        setFormData({ ...formData, telepon: e.target.value })
-                      }
-                      className="border-green-200 focus:border-green-500"
-                      required
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="telepon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nomor Telepon</FormLabel>
+                          <FormControl>
+                          <Input 
+                              placeholder="Contoh: 08123456789" 
+                              {...field} 
+                              type="tel" // Menggunakan type="tel"
+                              inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
+                              pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
+                              onChange={(e) => {
+                                  const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
+                                  field.onChange(value); // Update nilai form React Hook Form
+                                  setFormData({ ...formData, telepon: value }); // Update state formData
+                              }}
+                              className="border-green-200 focus:border-green-500" 
+                          />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="kategori"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kategori Aduan</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="border-green-200 focus:border-green-500">
+                                <SelectValue placeholder="Pilih kategori" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category} value={category}>
+                                  {category}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="kategori" className="text-sm font-medium">
-                      Kategori Aduan
-                    </Label>
-                    <Select
-                      value={formData.kategori}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, kategori: value })
-                      }
-                    >
-                      <SelectTrigger className="border-green-200 focus:border-green-500">
-                        <SelectValue placeholder="Pilih kategori" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="judul" className="text-sm font-medium">
-                    Judul Aduan
-                  </Label>
-                  <Input
-                    id="judul"
-                    type="text"
-                    placeholder="Ringkasan singkat tentang aduan Anda"
-                    value={formData.judul}
-                    onChange={(e) =>
-                      setFormData({ ...formData, judul: e.target.value })
-                    }
-                    className="border-green-200 focus:border-green-500"
-                    required
+                  <FormField
+                    control={form.control}
+                    name="judul"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Judul Aduan</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Ringkasan singkat aduan Anda" {...field} className="border-green-200 focus:border-green-500" />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
                   />
-                </div>
 
-                <div>
-                  <Label htmlFor="deskripsi" className="text-sm font-medium">
-                    Deskripsi Aduan
-                  </Label>
-                  <Textarea
-                    id="deskripsi"
-                    placeholder="Jelaskan detail aduan Anda..."
-                    value={formData.deskripsi}
-                    onChange={(e) =>
-                      setFormData({ ...formData, deskripsi: e.target.value })
-                    }
-                    className="border-green-200 focus:border-green-500"
-                    rows={5}
-                    required
+                  <FormField
+                    control={form.control}
+                    name="deskripsi"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Deskripsi Aduan</FormLabel>
+                        <FormControl>
+                            <Textarea
+                                placeholder="Jelaskan detail aduan Anda..."
+                                className="border-green-200 focus:border-green-500"
+                                rows={5}
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
                   />
-                </div>
 
                 <div>
                   <Label htmlFor="bukti" className="text-sm font-medium">
@@ -313,6 +350,7 @@ export default function Complaint() {
                   Kirim Aduan
                 </Button>
               </form>
+              </Form>
             </CardContent>
           </Card>
         )}
