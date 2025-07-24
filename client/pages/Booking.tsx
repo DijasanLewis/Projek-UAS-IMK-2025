@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,6 +47,8 @@ const formSchema = z.object({
 });
 
 export default function Booking() {
+  const { user } = useAuth(); 
+  
   const [searchParams] = useSearchParams();
   const serviceFromUrl = searchParams.get("layanan");
 
@@ -64,14 +67,15 @@ export default function Booking() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: "onBlur", // Validasi akan berjalan saat pengguna keluar dari input
+    mode: "onBlur",
+    // Isi defaultValues dengan data dari user jika ada
     defaultValues: {
-        nama: "",
-        nik: "",
-        telepon: "",
-        email: "",
+        nama: user?.nama || "",
+        nik: user?.nik || "",
+        telepon: user?.telepon || "",
+        email: user?.email || "",
         keperluan: "",
-      },
+    },
   });
 
   function onFormSubmit(values: z.infer<typeof formSchema>) {
@@ -426,7 +430,7 @@ export default function Booking() {
                         <FormItem>
                         <FormLabel>Nama Lengkap</FormLabel>
                         <FormControl>
-                            <Input placeholder="Masukkan nama lengkap" {...field} className="border-green-200 focus:border-green-500"/>
+                        <Input placeholder="Masukkan nama lengkap" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100"/>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -439,19 +443,7 @@ export default function Booking() {
                         <FormItem>
                         <FormLabel>NIK</FormLabel>
                         <FormControl>
-                        <Input 
-                            placeholder="16 digit NIK" 
-                            {...field} 
-                            maxLength={16} 
-                            onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
-                                field.onChange(value); // Update nilai form React Hook Form
-                                setFormData({ ...formData, nik: value }); // Update state formData
-                            }} 
-                            inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
-                            pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
-                            className="border-green-200 focus:border-green-500" 
-                        />
+                          <Input placeholder="16 digit NIK" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -467,19 +459,7 @@ export default function Booking() {
                         <FormItem>
                         <FormLabel>Nomor Telepon</FormLabel>
                         <FormControl>
-                        <Input 
-                          placeholder="Contoh: 08123456789" 
-                          {...field} 
-                          type="tel" // Menggunakan type="tel"
-                          inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
-                          pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
-                          onChange={(e) => {
-                              const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
-                              field.onChange(value); // Update nilai form React Hook Form
-                              setFormData({ ...formData, telepon: value }); // Update state formData
-                          }}
-                          className="border-green-200 focus:border-green-500" 
-                        />
+                          <Input placeholder="Contoh: 08123456789" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -492,7 +472,7 @@ export default function Booking() {
                         <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                            <Input placeholder="nama@email.com" {...field} className="border-green-200 focus:border-green-500" />
+                          <Input placeholder="nama@email.com" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                         </FormControl>
                         <FormMessage />
                         </FormItem>

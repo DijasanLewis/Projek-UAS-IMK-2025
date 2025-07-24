@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,6 +62,7 @@ const complaintSchema = z.object({
 });
 
 export default function Complaint() {
+  const { user } = useAuth(); // Ambil data pengguna dari konteks
   const [activeTab, setActiveTab] = useState("buat");
   const [formData, setFormData] = useState({
     nama: "",
@@ -118,9 +120,9 @@ export default function Complaint() {
     resolver: zodResolver(complaintSchema),
     mode: "onBlur",
     defaultValues: {
-      nama: "",
-      email: "",
-      telepon: "",
+      nama: user?.nama || "",
+      email: user?.email || "",
+      telepon: user?.telepon || "",
       judul: "",
       deskripsi: "",
     },
@@ -280,7 +282,7 @@ export default function Complaint() {
                         <FormItem>
                           <FormLabel>Nama Lengkap</FormLabel>
                           <FormControl>
-                            <Input placeholder="Masukkan nama lengkap" {...field} className="border-green-200 focus:border-green-500" />
+                            <Input placeholder="Masukkan nama lengkap" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -293,7 +295,7 @@ export default function Complaint() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="nama@email.com" {...field} className="border-green-200 focus:border-green-500" />
+                            <Input placeholder="nama@email.com" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -309,19 +311,7 @@ export default function Complaint() {
                         <FormItem>
                           <FormLabel>Nomor Telepon</FormLabel>
                           <FormControl>
-                          <Input 
-                              placeholder="Contoh: 08123456789" 
-                              {...field} 
-                              type="tel" // Menggunakan type="tel"
-                              inputMode="numeric" // Memunculkan keyboard numerik di perangkat mobile
-                              pattern="[0-9]*" // Memberikan hint ke browser untuk hanya angka
-                              onChange={(e) => {
-                                  const value = e.target.value.replace(/\D/g, ''); // Hapus semua karakter non-digit
-                                  field.onChange(value); // Update nilai form React Hook Form
-                                  setFormData({ ...formData, telepon: value }); // Update state formData
-                              }}
-                              className="border-green-200 focus:border-green-500" 
-                          />
+                            <Input placeholder="08xxxxxxxxxx" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
