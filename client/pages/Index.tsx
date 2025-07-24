@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,19 +40,21 @@ import {
   LogIn,
 } from "lucide-react";
 
+type Service = {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+  category: string;
+  estimatedTime: string;
+  available: boolean;
+};
+
 export default function Index() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Service[]>([]);
   const navigate = useNavigate();
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/layanan?q=${searchQuery}`);
-    }
-  };
-  // Popular services data
-  const popularServices = [
+  const allServices: Service[] = [
     {
       icon: <User className="h-6 w-6" />,
       title: "KTP Elektronik",
@@ -100,7 +103,40 @@ export default function Index() {
       estimatedTime: "1 jam",
       available: true,
     },
+    {
+      icon: <User className="h-6 w-6" />,
+      title: "Kartu Keluarga",
+      description: "Pembuatan dan perubahan Kartu Keluarga",
+      category: "Kependudukan",
+      estimatedTime: "45 menit",
+      available: true,
+    },
   ];
+
+  const fuse = new Fuse(allServices, {
+    keys: ['title'], // Cari berdasarkan 'title'
+    includeScore: true,
+    threshold: 0.4, // Atur seberapa "fuzzy" pencariannya (0.0 = cocok persis, 1.0 = cocok semua)
+  });
+
+  // Efek untuk memfilter layanan berdasarkan input pencarian
+  useEffect(() => {
+    if (searchQuery.trim() !== "") {
+      const results = fuse.search(searchQuery);
+      // Hasil dari Fuse berisi item asli di dalam properti 'item'
+      const filteredServices = results.map(result => result.item);
+      setSuggestions(filteredServices);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/layanan?q=${searchQuery}`);
+    }
+  };
 
   const categories = [
     { name: "Kependudukan", count: 12, icon: <Users className="h-5 w-5" /> },
@@ -108,6 +144,8 @@ export default function Index() {
     { name: "Kepolisian", count: 8, icon: <Shield className="h-5 w-5" /> },
     { name: "PDAM", count: 4, icon: <Home className="h-5 w-5" /> },
   ];
+
+  const popularServices = allServices.slice(0, 6);
 
   const stats = [
     {
@@ -173,31 +211,53 @@ export default function Index() {
             </div>
 
             {/* Quick Search */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="bg-white rounded-2xl p-6 shadow-xl"
-            >
+            <div className="bg-white rounded-2xl p-6 shadow-xl relative">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 Cari Layanan
               </h3>
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Cari layanan yang Anda butuhkan..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
-                />
-              </div>
-              {/* 5. Bungkus setiap tombol kategori dengan Link */}
+              <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-4">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Cari layanan..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Cari
+                </Button>
+              </form>
+
+              {/* Suggestions Box */}
+              {suggestions.length > 0 && (
+                <div className="absolute top-full left-6 right-6 mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg">
+                  <ul className="py-2">
+                    {suggestions.map((service, index) => (
+                      <li key={index}>
+                        <Link
+                          to={`/layanan?q=${service.title}`}
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setSearchQuery("")} // Kosongkan input setelah diklik
+                        >
+                          <span className="text-green-600">{service.icon}</span>
+                          <span>{service.title}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-2">
                 {categories.map((category, index) => (
-                  <Link
-                    key={index}
-                    to={`/layanan?kategori=${category.name}`}
-                  >
+                  <Link key={index} to={`/layanan?kategori=${category.name}`}>
                     <Button
-                      type="button" // Tambahkan type="button" agar tidak men-submit form
+                      type="button"
                       variant="ghost"
                       size="sm"
                       className="w-full justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
@@ -214,7 +274,7 @@ export default function Index() {
                   </Link>
                 ))}
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </section>

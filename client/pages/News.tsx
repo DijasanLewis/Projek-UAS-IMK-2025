@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -101,6 +102,11 @@ export default function News() {
     },
   ];
 
+  const fuse = new Fuse(newsData, {
+    keys: ['title', 'excerpt'], // Cari berdasarkan judul dan kutipan
+    threshold: 0.4, // Atur tingkat toleransi kesalahan
+  });
+
   const categories = [
     "Semua",
     "Pengumuman",
@@ -112,14 +118,19 @@ export default function News() {
 
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
-  const filteredNews = newsData.filter((news) => {
-    const matchesSearch = news.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Semua" || news.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredNews = (() => {
+    // Lakukan pencarian fuzzy jika ada query
+    const searchedNews = searchQuery.trim()
+      ? fuse.search(searchQuery).map(result => result.item)
+      : newsData;
+
+    // Filter berdasarkan kategori dari hasil pencarian
+    return searchedNews.filter((news) => {
+      const matchesCategory =
+        selectedCategory === "Semua" || news.category === selectedCategory;
+      return matchesCategory;
+    });
+  })();
 
   const featuredNews = newsData.find((news) => news.featured);
   const regularNews = filteredNews.filter((news) => !news.featured);

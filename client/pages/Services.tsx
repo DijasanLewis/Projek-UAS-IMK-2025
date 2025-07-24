@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import Fuse from 'fuse.js';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,8 +42,8 @@ export default function Services() {
   const initialQuery = searchParams.get("q") || "";
   const initialCategory = searchParams.get("kategori") || "Semua";
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
   const allServices = [
     {
@@ -191,6 +192,11 @@ export default function Services() {
     },
   ];
 
+  const fuse = new Fuse(allServices, {
+    keys: ['title', 'description'], // Kita bisa cari di judul dan deskripsi
+    threshold: 0.4,
+  });
+
   const categories = [
     "Semua",
     "Kependudukan",
@@ -202,14 +208,19 @@ export default function Services() {
     "BPN",
   ];
 
-  const filteredServices = allServices.filter((service) => {
-    const matchesSearch =
-      service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Semua" || service.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredServices = (() => {
+    // 1. Lakukan pencarian fuzzy jika ada query
+    const searchedServices = searchQuery.trim()
+      ? fuse.search(searchQuery).map(result => result.item)
+      : allServices;
+
+    // 2. Filter berdasarkan kategori dari hasil pencarian
+    return searchedServices.filter((service) => {
+      const matchesCategory =
+        selectedCategory === "Semua" || service.category === selectedCategory;
+      return matchesCategory;
+    });
+  })();
 
   return (
     <div className="min-h-screen bg-gray-50">
