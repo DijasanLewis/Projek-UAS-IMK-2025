@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +42,14 @@ import {
 export default function Index() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/layanan?q=${searchQuery}`);
+    }
+  };
   // Popular services data
   const popularServices = [
     {
@@ -166,7 +173,10 @@ export default function Index() {
             </div>
 
             {/* Quick Search */}
-            <div className="bg-white rounded-2xl p-6 shadow-xl">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="bg-white rounded-2xl p-6 shadow-xl"
+            >
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 Cari Layanan
               </h3>
@@ -179,26 +189,32 @@ export default function Index() {
                   className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
+              {/* 5. Bungkus setiap tombol kategori dengan Link */}
               <div className="grid grid-cols-2 gap-2">
                 {categories.map((category, index) => (
-                  <Button
+                  <Link
                     key={index}
-                    variant="ghost"
-                    size="sm"
-                    className="justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
+                    to={`/layanan?kategori=${category.name}`}
                   >
-                    {category.icon}
-                    <span className="ml-2">{category.name}</span>
-                    <Badge
-                      variant="secondary"
-                      className="ml-auto text-xs bg-yellow-100 text-green-700"
+                    <Button
+                      type="button" // Tambahkan type="button" agar tidak men-submit form
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
                     >
-                      {category.count}
-                    </Badge>
-                  </Button>
+                      {category.icon}
+                      <span className="ml-2">{category.name}</span>
+                      <Badge
+                        variant="secondary"
+                        className="ml-auto text-xs bg-yellow-100 text-green-700"
+                      >
+                        {category.count}
+                      </Badge>
+                    </Button>
+                  </Link>
                 ))}
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </section>
