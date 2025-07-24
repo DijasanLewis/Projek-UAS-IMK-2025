@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
   Landmark,
@@ -26,106 +27,85 @@ import {
   Receipt,
   LucideProps,
 } from "lucide-react";
-import { allServicesList } from "@/lib/service-data";
+import { allServicesList, Service } from "@/lib/service-data";
 import { agencyData } from "@/lib/agency-data";
 import React from "react";
 
-// Definisikan tipe data untuk layanan
-type Service = {
-    id: number;
-    icon: React.ComponentType<LucideProps>;
-    title: string;
-    description: string;
-    category: string;
-    estimatedTime: string;
-    available: boolean;
-};
-
 const ServiceCardSkeleton = () => (
-  <Card className="border-green-100">
-    <CardHeader>
-      <div className="flex items-start justify-between">
-        <Skeleton className="h-12 w-12 rounded-lg" />
-        <Skeleton className="h-6 w-20 rounded-full" />
-      </div>
-      <Skeleton className="h-6 w-3/4 mt-2 rounded" />
-      <Skeleton className="h-4 w-1/2 mt-1 rounded" />
-    </CardHeader>
-    <CardContent>
-      <div className="flex items-center justify-between mb-4">
-        <Skeleton className="h-5 w-24 rounded" />
-        <Skeleton className="h-5 w-20 rounded" />
-      </div>
-      <Skeleton className="h-10 w-full rounded-md" />
-    </CardContent>
-  </Card>
-);
-
-export default function Index() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Service[]>([]);
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Mengambil 6 layanan pertama sebagai layanan populer
-  const popularServices: Service[] = allServicesList.slice(0, 6).map(s => ({
-      id: s.id,
-      icon: s.icon,
-      title: s.title,
-      description: s.description,
-      category: s.category,
-      estimatedTime: s.estimatedTime,
-      available: s.available
-  }));
-
-  const fuse = new Fuse(allServicesList, {
-    keys: ['title'],
-    includeScore: true,
-    threshold: 0.4,
-  });
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    if (query.length > 2) {
-      const results = fuse.search(query);
-      const formattedResults = results.map(result => ({
-          id: result.item.id,
-          icon: result.item.icon,
-          title: result.item.title,
-          description: result.item.description,
-          category: result.item.category,
-          estimatedTime: result.item.estimatedTime,
-          available: result.item.available
-      }));
-      setSuggestions(formattedResults.slice(0, 5));
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/layanan?q=${searchQuery}`);
-    }
-  };
-
-  const categories = [
-    { name: "Kependudukan", count: 4, icon: <Users className="h-5 w-5" />, category: "Disdukcapil" },
-    { name: "Perizinan", count: 4, icon: <FileText className="h-5 w-5" />, category: "DPMPTSP" },
-    { name: "Kepolisian", count: 2, icon: <Shield className="h-5 w-5" />, category: "Polres" },
-    { name: "Pajak & Retribusi", count: 8, icon: <Receipt className="h-5 w-5" />, category: "Bapenda" },
-  ];
-
-  const institutions = agencyData;
+    <Card className="border-green-100">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+        <Skeleton className="h-6 w-3/4 mt-2 rounded" />
+        <Skeleton className="h-4 w-1/2 mt-1 rounded" />
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-5 w-24 rounded" />
+          <Skeleton className="h-5 w-20 rounded" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+      </CardContent>
+    </Card>
+  );
+  
+  export default function Index() {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [suggestions, setSuggestions] = useState<Service[]>([]);
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+  
+    // Mengambil 6 layanan pertama sebagai layanan populer
+    const popularServices: Service[] = allServicesList.slice(0, 6);
+  
+    const fuse = new Fuse(allServicesList, {
+      keys: ['title'],
+      includeScore: true,
+      threshold: 0.4,
+    });
+  
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }, []);
+  
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const query = e.target.value;
+      setSearchQuery(query);
+      if (query.length > 2) {
+        const results = fuse.search(query);
+        setSuggestions(results.map(result => result.item).slice(0, 5));
+      } else {
+        setSuggestions([]);
+      }
+    };
+  
+    const handleSearchSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        navigate(`/layanan?q=${searchQuery}`);
+      }
+    };
+  
+    const categories = [
+      { name: "Kependudukan", count: 4, icon: <Users className="h-5 w-5" />, category: "Disdukcapil" },
+      { name: "Perizinan", count: 4, icon: <FileText className="h-5 w-5" />, category: "DPMPTSP" },
+      { name: "Kepolisian", count: 2, icon: <Shield className="h-5 w-5" />, category: "Polres" },
+      { name: "Pajak & Retribusi", count: 8, icon: <Receipt className="h-5 w-5" />, category: "Bapenda" },
+    ];
+  
+    const agencyCategories = [
+        "Kementerian/Lembaga",
+        "Pemerintah Provinsi",
+        "Pemerintah Daerah",
+        "BUMN",
+        "BUMD",
+        "Perbankan"
+    ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,93 +114,93 @@ export default function Index() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                Mal Pelayanan Publik
-                <span className="block text-yellow-300">Kota Bekasi</span>
-              </h2>
-              <p className="text-xl text-green-100 mb-8 leading-relaxed">
-                Akses 50+ layanan dari 27 instansi dalam satu lokasi terpadu. Mudah, cepat, dan nyaman.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/booking">
-                  <Button size="lg" className="bg-yellow-400 text-green-800 hover:bg-yellow-300 font-semibold">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Daftar Antrian Online
-                  </Button>
-                </Link>
-                <Link to="/layanan">
-                  <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 border-2 border-white">
-                    <FileText className="h-5 w-5 mr-2" />
-                    Lihat Semua Layanan
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Quick Search */}
-            <div className="bg-white rounded-2xl p-6 shadow-xl relative">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Cari Layanan
-              </h3>
-              <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-4">
-                <div className="relative w-full">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Contoh: KTP, SIM, Paspor..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
-                  />
-                </div>
-                <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                  Cari
-                </Button>
-              </form>
-
-              {suggestions.length > 0 && (
-                <div className="absolute top-full left-6 right-6 mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg">
-                  <ul className="py-2">
-                    {suggestions.map((service) => {
-                      const Icon = service.icon;
-                      return (
-                        <li key={service.id}>
-                          <Link
-                            to={`/layanan?q=${service.title}`}
-                            className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => setSearchQuery("")}
-                          >
-                            <span className="text-green-600"><Icon className="h-6 w-6" /></span>
-                            <span>{service.title}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map((category) => (
-                  <Link key={category.name} to={`/layanan?kategori=${category.category}`}>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
-                    >
-                      {category.icon}
-                      <span className="ml-2">{category.name}</span>
-                      <Badge variant="secondary" className="ml-auto text-xs bg-yellow-100 text-green-700">
-                        {category.count}
-                      </Badge>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
+                    Mal Pelayanan Publik
+                    <span className="block text-yellow-300">Kota Bekasi</span>
+                </h2>
+                <p className="text-xl text-green-100 mb-8 leading-relaxed">
+                    Akses 50+ layanan dari 28 instansi dalam satu lokasi terpadu. Mudah, cepat, dan nyaman.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Link to="/booking">
+                    <Button size="lg" className="bg-yellow-400 text-green-800 hover:bg-yellow-300 font-semibold">
+                        <Calendar className="h-5 w-5 mr-2" />
+                        Daftar Antrian Online
                     </Button>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                    <Link to="/layanan">
+                    <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 border-2 border-white">
+                        <FileText className="h-5 w-5 mr-2" />
+                        Lihat Semua Layanan
+                    </Button>
+                    </Link>
+                </div>
+                </div>
+
+                {/* Quick Search */}
+                <div className="bg-white rounded-2xl p-6 shadow-xl relative">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    Cari Layanan
+                </h3>
+                <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-4">
+                    <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                        placeholder="Contoh: KTP, SIM, Paspor..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        className="pl-10 border-green-200 focus:border-green-500 text-gray-900 placeholder:text-gray-500"
+                    />
+                    </div>
+                    <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                    Cari
+                    </Button>
+                </form>
+
+                {suggestions.length > 0 && (
+                    <div className="absolute top-full left-6 right-6 mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <ul className="py-2">
+                        {suggestions.map((service) => {
+                        const Icon = service.icon;
+                        return (
+                            <li key={service.id}>
+                            <Link
+                                to={`/layanan?q=${service.title}`}
+                                className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                onClick={() => setSearchQuery("")}
+                            >
+                                <span className="text-green-600"><Icon className="h-6 w-6" /></span>
+                                <span>{service.title}</span>
+                            </Link>
+                            </li>
+                        );
+                        })}
+                    </ul>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                    {categories.map((category) => (
+                    <Link key={category.name} to={`/layanan?kategori=${category.category}`}>
+                        <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-gray-600 hover:text-green-600 hover:bg-green-50"
+                        >
+                        {category.icon}
+                        <span className="ml-2">{category.name}</span>
+                        <Badge variant="secondary" className="ml-auto text-xs bg-yellow-100 text-green-700">
+                            {category.count}
+                        </Badge>
+                        </Button>
+                    </Link>
+                    ))}
+                </div>
+                </div>
             </div>
-          </div>
         </div>
       </section>
 
@@ -301,27 +281,39 @@ export default function Index() {
               Instansi Tergabung
             </h3>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              27 instansi dari berbagai tingkatan siap melayani Anda di MPP Kota Bekasi.
+              28 instansi dari berbagai tingkatan siap melayani Anda di MPP Kota Bekasi.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {institutions.map((inst) => (
-              <Link to={`/instansi/${inst.slug}`} key={inst.slug}>
-                <Card
-                  className="text-center h-full hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-in-out border-green-100"
-                >
-                  <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-                    <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                      <Landmark className="h-6 w-6 text-green-600" />
+          
+          <Tabs defaultValue={agencyCategories[0]} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
+                {agencyCategories.map(category => (
+                    <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
+                ))}
+            </TabsList>
+            {agencyCategories.map(category => (
+                <TabsContent key={category} value={category}>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
+                        {agencyData.filter(inst => inst.category === category).map((inst) => (
+                        <Link to={`/instansi/${inst.slug}`} key={inst.slug}>
+                            <Card
+                            className="text-center h-full hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-in-out border-green-100"
+                            >
+                            <CardContent className="p-4 flex flex-col items-center justify-center h-full">
+                                <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                                <Landmark className="h-6 w-6 text-green-600" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 mb-1 text-sm text-center">
+                                {inst.name}
+                                </h4>
+                            </CardContent>
+                            </Card>
+                        </Link>
+                        ))}
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1 text-sm text-center">
-                      {inst.name}
-                    </h4>
-                  </CardContent>
-                </Card>
-              </Link>
+                </TabsContent>
             ))}
-          </div>
+          </Tabs>
         </div>
       </section>
       

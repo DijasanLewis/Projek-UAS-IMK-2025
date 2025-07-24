@@ -27,7 +27,7 @@ import {
   Filter,
   FileText,
 } from "lucide-react";
-import { allServicesList, Service } from "@/lib/service-data";
+import { allServicesList } from "@/lib/service-data";
 
 export default function Services() {
   const [searchParams] = useSearchParams();
@@ -111,7 +111,7 @@ export default function Services() {
         {filteredServices.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredServices.map((service) => {
-                const Icon = service.icon; // Definisikan komponen ikon di sini
+                const Icon = service.icon;
                 return (
                     <Card
                         key={service.id}
