@@ -15,6 +15,7 @@ export default function Navbar() {
     { path: "/", label: "Beranda" },
     { path: "/layanan", label: "Layanan" },
     { path: "/berita", label: "Berita" },
+    { path: "/panduan", label: "Panduan" },
     { path: "/aduan", label: "Aduan" },
   ];
 
