@@ -37,6 +37,18 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast"; // Untuk notifikasi
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"; // Untuk konfirmasi
 
 const complaintSchema = z.object({
   nama: z.string().min(2, { message: "Nama lengkap harus diisi." }),
@@ -45,7 +57,7 @@ const complaintSchema = z.object({
   kategori: z.string({ required_error: "Kategori aduan harus dipilih." }),
   judul: z.string().min(1, { message: "Judul aduan tolong diisi." }),
   deskripsi: z.string().min(1, { message: "Deskripsi aduan tolong diisi." }),
-  bukti: z.any().optional(), // Validasi file bisa lebih kompleks, kita biarkan opsional
+  bukti: z.instanceof(FileList).optional(), // Validasi file bisa lebih kompleks, kita biarkan opsional
 });
 
 export default function Complaint() {
@@ -98,6 +110,10 @@ export default function Complaint() {
     },
   ];
 
+  const [submittedData, setSubmittedData] = useState<z.infer<typeof complaintSchema> | null>(null);
+  const [submittedFile, setSubmittedFile] = useState<{ name: string; url: string } | null>(null);
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof complaintSchema>>({
     resolver: zodResolver(complaintSchema),
     mode: "onBlur",
@@ -112,9 +128,32 @@ export default function Complaint() {
 
   function onComplaintSubmit(values: z.infer<typeof complaintSchema>) {
     console.log("Complaint data:", values);
-    alert("Aduan Anda berhasil dikirim!"); // Nanti bisa diganti dengan toast notifikasi
+
+    // Buat URL sementara jika ada file yang diunggah
+    if (values.bukti && values.bukti.length > 0) {
+      const file = values.bukti[0];
+      const fileUrl = URL.createObjectURL(file);
+      setSubmittedFile({ name: file.name, url: fileUrl });
+    } else {
+      setSubmittedFile(null);
+    }
+    
+    setSubmittedData(values);
+    toast({
+      title: "✅ Aduan Terkirim",
+      description: "Terima kasih, aduan Anda telah berhasil kami terima.",
+    });
     form.reset(); 
   }
+
+  // Fungsi  untuk mengirim aduan lain
+  const handleSendAnotherComplaint = () => {
+    if (submittedFile) {
+      URL.revokeObjectURL(submittedFile.url); // Penting untuk mencegah memory leak
+    }
+    setSubmittedData(null);
+    setSubmittedFile(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,6 +218,47 @@ export default function Complaint() {
         {/* Tab Content */}
         {activeTab === "buat" && (
           <Card className="border-green-100 shadow-xl">
+          {submittedData ? (
+              // Tampilan SETELAH berhasil mengirim aduan
+              <CardContent className="p-6 text-center">
+                  <div className="mx-auto bg-green-100 p-3 rounded-full w-fit mb-4">
+                      <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-green-600 mb-2">
+                      Aduan Berhasil Dikirim
+                  </CardTitle>
+                  <CardDescription className="mb-6">
+                      Berikut adalah rincian aduan yang telah Anda kirimkan.
+                  </CardDescription>
+      
+                  <div className="bg-gray-50 border rounded-lg p-4 text-left space-y-2 mb-6">
+                      <p><strong>Nama:</strong> {submittedData.nama}</p>
+                      <p><strong>Email:</strong> {submittedData.email}</p>
+                      <p><strong>Telepon:</strong> {submittedData.telepon}</p>
+                      <p><strong>Kategori:</strong> {submittedData.kategori}</p>
+                      <p><strong>Judul:</strong> {submittedData.judul}</p>
+                      <p><strong>Deskripsi:</strong> {submittedData.deskripsi}</p>
+
+                      {submittedFile && (
+                        <div className="pt-2 border-t">
+                            <strong>Bukti Terlampir:</strong> {submittedFile.name}
+                            <a href={submittedFile.url} target="_blank" rel="noopener noreferrer" className="ml-2">
+                                <Button variant="outline" size="sm" className="border-green-600 text-green-600 hover:bg-green-50">
+                                    Buka File
+                                </Button>
+                            </a>
+                        </div>
+                      )}
+                  </div>
+      
+                  <Button onClick={handleSendAnotherComplaint} className="bg-green-600 hover:bg-green-700">
+                      <Send className="h-4 w-4 mr-2" />
+                      Kirim Aduan Lainnya
+                  </Button>
+              </CardContent>
+          ) : (
+            // Tampilan formulir SEBELUM mengirim aduan
+            <>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
@@ -306,24 +386,28 @@ export default function Complaint() {
                     )}
                   />
 
-                <div>
-                  <Label htmlFor="bukti" className="text-sm font-medium">
-                    Upload Bukti (Opsional)
-                  </Label>
-                  <Input
-                    id="bukti"
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      setFormData({ ...formData, bukti: file });
-                    }}
-                    className="border-green-200 focus:border-green-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Format: JPG, PNG, PDF. Maksimal 5MB
-                  </p>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="bukti"
+                  render={() => ( // Kita tidak butuh `field` di sini, jadi bisa dihilangkan
+                    <FormItem>
+                      <FormLabel>Upload Bukti (Opsional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="bukti"
+                          type="file"
+                          accept="image/*,.pdf"
+                          className="border-green-200 focus:border-green-500"
+                          {...form.register("bukti")} // Gunakan register untuk input file
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Format: JPG, PNG, PDF. Maksimal 5MB
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-start">
@@ -341,20 +425,41 @@ export default function Complaint() {
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  size="lg"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Kirim Aduan
-                </Button>
-              </form>
-              </Form>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button
+                        type="button" // Ubah jadi type="button"
+                        className="w-full bg-green-600 hover:bg-green-700"
+                        size="lg"
+                        >
+                        <Send className="h-4 w-4 mr-2" />
+                        Kirim Aduan
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Konfirmasi Pengiriman Aduan</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Apakah Anda yakin data yang dimasukkan sudah benar dan ingin mengirimkan aduan ini?
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        {/* Tombol ini yang akan men-submit form */}
+                        <AlertDialogAction onClick={form.handleSubmit(onComplaintSubmit)}>
+                            Ya, Kirim Aduan
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                    </AlertDialog>
+                    </form>
+                </Form>
             </CardContent>
-          </Card>
-        )}
-
+            </>
+            )}
+            </Card>
+          )}
+          
         {activeTab === "riwayat" && (
           <Card className="border-green-100 shadow-xl">
             <CardHeader>
