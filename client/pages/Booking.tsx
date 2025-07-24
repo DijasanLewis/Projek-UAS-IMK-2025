@@ -28,21 +28,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
-  Building,
   Calendar,
-  Clock,
   User,
   FileText,
   CheckCircle,
   AlertTriangle,
   Search,
+  Building,
+  MapPin
 } from "lucide-react";
+import { allServicesList } from "@/lib/service-data";
 
 const formSchema = z.object({
   nama: z.string().min(2, { message: "Nama lengkap harus diisi." }),
   nik: z.string().regex(/^\d{16}$/, { message: "NIK harus terdiri dari 16 digit angka." }),
   telepon: z.string().min(10, { message: "Nomor telepon minimal 10 digit." }).regex(/^[0-9]+$/, { message: "Hanya boleh berisi angka." }),
   email: z.string().email({ message: "Format email tidak valid." }),
+  lokasi: z.string({ required_error: "Lokasi pelayanan harus dipilih." }),
   keperluan: z.string().optional(),
 });
 
@@ -51,68 +53,62 @@ export default function Booking() {
   
   const [searchParams] = useSearchParams();
   const serviceFromUrl = searchParams.get("layanan");
+  const selectedServiceData = allServicesList.find(s => s.title === serviceFromUrl);
 
-  // Langsung ke langkah 2 jika layanan sudah dipilih dari URL
   const [currentStep, setCurrentStep] = useState(serviceFromUrl ? 2 : 1);
   const [formData, setFormData] = useState({
+    id: "", // Akan diisi saat submit
     layanan: serviceFromUrl || "",
+    instansi: selectedServiceData?.category || "",
     tanggal: "",
     waktu: "",
     nama: "",
     nik: "",
     telepon: "",
     email: "",
+    lokasi: "",
     keperluan: "",
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
-    // Isi defaultValues dengan data dari user jika ada
     defaultValues: {
         nama: user?.nama || "",
         nik: user?.nik || "",
         telepon: user?.telepon || "",
         email: user?.email || "",
+        lokasi: "",
         keperluan: "",
     },
   });
 
   function onFormSubmit(values: z.infer<typeof formSchema>) {
-    // Gabungkan data dari form dengan data dari langkah sebelumnya
-    const finalData = { ...formData, ...values };
+    const uniqueId = `MPP-${Date.now().toString().slice(-6)}`;
+    const finalData = { ...formData, ...values, id: uniqueId, status: "Akan Datang" };
+    
+    const bookings = JSON.parse(localStorage.getItem('mppUserBookings') || '[]');
+    bookings.push(finalData);
+    localStorage.setItem('mppUserBookings', JSON.stringify(bookings));
+    
     setFormData(finalData);
     console.log("Booking data:", finalData);
-    setCurrentStep(4); // Lanjutkan ke halaman sukses
+    setCurrentStep(4);
   }
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showAllServices, setShowAllServices] = useState(false);
-
-  // State untuk menyimpan slot waktu yang tersedia
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
-  const services = [
-    { id: "KTP Elektronik", name: "KTP Elektronik", category: "Kependudukan", estimatedTime: "30 menit", available: true },
-    { id: "Akta Kelahiran", name: "Akta Kelahiran", category: "Catatan Sipil", estimatedTime: "45 menit", available: true },
-    { id: "Perpanjangan SIM", name: "Perpanjangan SIM", category: "Kepolisian", estimatedTime: "1 jam", available: true },
-    { id: "Izin Usaha Perdagangan", name: "Izin Usaha Perdagangan", category: "DPMPTSP", estimatedTime: "2 jam", available: false },
-    { id: "Pembayaran PDAM", name: "Pembayaran PDAM", category: "PDAM", estimatedTime: "15 menit", available: true },
-    { id: "Keterangan Antar Kerja", name: "Keterangan Antar Kerja", category: "Disnaker", estimatedTime: "1 jam", available: true },
-    { id: "SKCK", name: "SKCK", category: "Kepolisian", estimatedTime: "2 jam", available: true },
-    { id: "Izin Keramaian", name: "Izin Keramaian", category: "Kepolisian", estimatedTime: "3 hari", available: true },
-    { id: "Sertifikat Tanah", name: "Sertifikat Tanah", category: "BPN", estimatedTime: "1 minggu", available: true },
-    { id: "Izin Mendirikan Bangunan", name: "Izin Mendirikan Bangunan", category: "DPMPTSP", estimatedTime: "2 minggu", available: true },
-    { id: "Kartu Keluarga", name: "Kartu Keluarga", category: "Kependudukan", estimatedTime: "45 menit", available: true },
-    { id: "Akta Kematian", name: "Akta Kematian", category: "Catatan Sipil", estimatedTime: "30 menit", available: true },
-  ];
+  const services = allServicesList;
 
   const allTimeSlots = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
   ];
+  
+  const lokasiPelayanan = ["Lokasi 1", "Lokasi 2", "Lokasi 3", "Lokasi 4", "Lokasi 5", "Lokasi 6"];
 
-  // useEffect untuk memfilter waktu yang sudah lewat hari ini
   useEffect(() => {
     if (!formData.tanggal) {
       setAvailableTimeSlots(allTimeSlots);
@@ -122,34 +118,25 @@ export default function Booking() {
     const now = new Date();
     const selectedDate = new Date(formData.tanggal);
     
-    // Reset jam, menit, detik untuk perbandingan tanggal saja
     now.setHours(0, 0, 0, 0);
-    // Tambahkan penanganan zona waktu agar perbandingan tanggal akurat
     const selectedDateLocal = new Date(selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000);
     selectedDateLocal.setHours(0, 0, 0, 0);
 
     if (selectedDateLocal.getTime() > now.getTime()) {
-      // Jika tanggal yang dipilih adalah di masa depan, semua slot tersedia
       setAvailableTimeSlots(allTimeSlots);
     } else if (selectedDateLocal.getTime() === now.getTime()) {
-      // Jika tanggal yang dipilih adalah hari ini, filter waktu yang sudah lewat
       const currentTime = new Date();
       const currentHours = currentTime.getHours();
       const currentMinutes = currentTime.getMinutes();
 
       const filteredSlots = allTimeSlots.filter(slot => {
         const [slotHours, slotMinutes] = slot.split(':').map(Number);
-        if (slotHours > currentHours) {
-          return true;
-        }
-        if (slotHours === currentHours && slotMinutes > currentMinutes) {
-          return true;
-        }
+        if (slotHours > currentHours) return true;
+        if (slotHours === currentHours && slotMinutes > currentMinutes) return true;
         return false;
       });
       setAvailableTimeSlots(filteredSlots);
     } else {
-      // Jika tanggal yang dipilih di masa lalu
       setAvailableTimeSlots([]);
     }
   }, [formData.tanggal]);
@@ -160,7 +147,6 @@ export default function Booking() {
   };
 
   const prevStep = () => {
-    // Jika melewati langkah pertama, kembali ke halaman layanan
     if (currentStep === 2 && serviceFromUrl) {
         window.history.back();
         return;
@@ -168,15 +154,8 @@ export default function Booking() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle booking submission
-    console.log("Booking data:", formData);
-    setCurrentStep(4); // Success step
-  };
-
   const fuse = new Fuse(services, {
-    keys: ['name', 'category'], // Cari berdasarkan nama dan kategori
+    keys: ['title', 'category'],
     threshold: 0.4,
   });
 
@@ -184,15 +163,12 @@ export default function Booking() {
       ? fuse.search(searchTerm).map(result => result.item)
       : services;
 
-  const displayedServices = showAllServices ? filteredServices : filteredServices.slice(0, 3);
+  const displayedServices = showAllServices ? filteredServices : filteredServices.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50">
       <Navbar />
-
-      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Progress Steps */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center space-x-4">
             {[1, 2, 3].map((step) => (
@@ -218,7 +194,6 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Step Content */}
         <Card className="border-green-100 shadow-xl">
           {currentStep === 1 && (
             <>
@@ -232,7 +207,6 @@ export default function Booking() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {/* Kolom Pencarian Baru */}
                 <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -243,26 +217,25 @@ export default function Booking() {
                     />
                 </div>
 
-                {/* Daftar Layanan Dinamis */}
                 <div className="grid gap-4">
                   {displayedServices.map((service) => (
                     <div
                       key={service.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        formData.layanan === service.id
+                        formData.layanan === service.title
                           ? "border-green-500 bg-green-50"
                           : "border-gray-200 hover:border-green-300"
                       } ${!service.available ? "opacity-50" : ""}`}
                       onClick={() => {
                         if (service.available) {
-                          setFormData({ ...formData, layanan: service.id });
+                          setFormData({ ...formData, layanan: service.title, instansi: service.category });
                         }
                       }}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="font-medium text-gray-900">
-                            {service.name}
+                            {service.title}
                           </h3>
                           <p className="text-sm text-gray-500 mt-1">
                             Estimasi waktu: {service.estimatedTime}
@@ -289,9 +262,8 @@ export default function Booking() {
                   ))}
                 </div>
 
-                {/* Tombol Tampilkan Semua/Sedikit dan Lanjutkan */}
                 <div className="flex justify-between items-center mt-6">
-                    {filteredServices.length > 3 && (
+                    {filteredServices.length > 6 && (
                         <Button
                             variant="link"
                             onClick={() => setShowAllServices(!showAllServices)}
@@ -300,7 +272,7 @@ export default function Booking() {
                             {showAllServices ? "Tampilkan lebih sedikit" : "Tampilkan semua layanan"}
                         </Button>
                     )}
-                    <div className="flex-grow"></div> {/* Spacer */}
+                    <div className="flex-grow"></div>
                     <Button
                         onClick={nextStep}
                         disabled={!formData.layanan}
@@ -336,7 +308,7 @@ export default function Booking() {
                       type="date"
                       value={formData.tanggal}
                       onChange={(e) =>
-                        setFormData({ ...formData, tanggal: e.target.value, waktu: "" }) // Reset waktu jika tanggal berubah
+                        setFormData({ ...formData, tanggal: e.target.value, waktu: "" })
                       }
                       className="border-green-200 focus:border-green-500"
                       min={new Date().toISOString().split("T")[0]}
@@ -411,93 +383,87 @@ export default function Booking() {
         {currentStep === 3 && (
         <>
             <CardHeader>
-            <CardTitle className="flex items-center">
-                <User className="h-5 w-5 mr-2 text-green-600" />
-                Data Pemohon
-            </CardTitle>
-            <CardDescription>
-                Lengkapi data diri untuk booking antrian
-            </CardDescription>
+              <CardTitle className="flex items-center">
+                  <User className="h-5 w-5 mr-2 text-green-600" />
+                  Data Pemohon
+              </CardTitle>
+              <CardDescription>
+                  Lengkapi data diri untuk menyelesaikan booking antrian.
+              </CardDescription>
             </CardHeader>
             <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                    control={form.control}
-                    name="nama"
-                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Instansi</FormLabel>
+                        <Input value={formData.instansi} readOnly className="bg-gray-100"/>
+                    </FormItem>
+                    <FormItem>
+                        <FormLabel>Jenis Pelayanan</FormLabel>
+                        <Input value={formData.layanan} readOnly className="bg-gray-100"/>
+                    </FormItem>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="nama" render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Nama Lengkap</FormLabel>
-                        <FormControl>
-                        <Input placeholder="Masukkan nama lengkap" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100"/>
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Nama Lengkap</FormLabel>
+                            <FormControl><Input placeholder="Masukkan nama lengkap" {...field} readOnly className="bg-gray-100"/></FormControl>
+                            <FormMessage />
                         </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="nik"
-                    render={({ field }) => (
+                    )} />
+                    <FormField control={form.control} name="nik" render={({ field }) => (
                         <FormItem>
-                        <FormLabel>NIK</FormLabel>
-                        <FormControl>
-                          <Input placeholder="16 digit NIK" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>NIK</FormLabel>
+                            <FormControl><Input placeholder="16 digit NIK" {...field} readOnly className="bg-gray-100" /></FormControl>
+                            <FormMessage />
                         </FormItem>
-                    )}
-                    />
+                    )} />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                    control={form.control}
-                    name="telepon"
-                    render={({ field }) => (
+                    <FormField control={form.control} name="telepon" render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Nomor Telepon</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Contoh: 08123456789" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Nomor Telepon</FormLabel>
+                            <FormControl><Input placeholder="Contoh: 08123456789" {...field} readOnly className="bg-gray-100" /></FormControl>
+                            <FormMessage />
                         </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
+                    )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="nama@email.com" {...field} readOnly className="border-green-200 focus:border-green-500 bg-gray-100" />
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Email</FormLabel>
+                            <FormControl><Input placeholder="nama@email.com" {...field} readOnly className="bg-gray-100" /></FormControl>
+                            <FormMessage />
                         </FormItem>
-                    )}
-                    />
+                    )} />
                 </div>
                 
-                <FormField
-                    control={form.control}
-                    name="keperluan"
-                    render={({ field }) => (
+                <FormField control={form.control} name="lokasi" render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Keperluan (Opsional)</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Jelaskan keperluan atau informasi tambahan"
-                                className="border-green-200 focus:border-green-500"
-                                rows={3}
-                                {...field}
-                            />
-                        </FormControl>
+                        <FormLabel>Lokasi Pelayanan</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger className="border-green-200 focus:border-green-500">
+                                <SelectValue placeholder="Pilih lokasi pelayanan" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {lokasiPelayanan.map(lokasi => (
+                                    <SelectItem key={lokasi} value={lokasi}>{lokasi}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                     </FormItem>
-                    )}
-                />
+                )} />
+
+                <FormField control={form.control} name="keperluan" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Keperluan (Opsional)</FormLabel>
+                        <FormControl><Textarea placeholder="Jelaskan keperluan atau informasi tambahan" className="border-green-200 focus:border-green-500" rows={3} {...field}/></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
 
                 <div className="flex justify-between mt-6 pt-2">
                     <Button type="button" variant="outline" onClick={prevStep} className="border-green-600 text-green-600">
@@ -524,7 +490,7 @@ export default function Booking() {
                   Booking Berhasil!
                 </CardTitle>
                 <CardDescription>
-                  Antrian Anda telah berhasil dibuat
+                  Antrian Anda telah berhasil dibuat.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -534,11 +500,10 @@ export default function Booking() {
                   </h3>
                   <div className="space-y-2 text-sm">
                     <p>
-                      <strong>Kode Booking:</strong> MPP-2024-001234
+                      <strong>Kode Booking:</strong> {formData.id}
                     </p>
                     <p>
-                      <strong>Layanan:</strong>{" "}
-                      {services.find((s) => s.id === formData.layanan)?.name}
+                      <strong>Layanan:</strong> {formData.layanan}
                     </p>
                     <p>
                       <strong>Tanggal:</strong> {new Date(formData.tanggal).toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -549,35 +514,11 @@ export default function Booking() {
                     <p>
                       <strong>Nama:</strong> {formData.nama}
                     </p>
+                    <p>
+                      <strong>Lokasi:</strong> {formData.lokasi}
+                    </p>
                   </div>
                 </div>
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                    <h4 className="font-medium text-yellow-800 mb-2">
-                    Langkah Selanjutnya:
-                    </h4>
-                    <ul className="text-sm text-yellow-700 space-y-2">
-                        <li>• Simpan kode booking Anda.</li>
-                        <li>• Datang 15 menit sebelum waktu booking.</li>
-                        <li>• <strong>Setelah selesai, jangan lupa untuk menilai pelayanan kami melalui tautan di bawah ini.</strong></li>
-                    </ul>
-                </div>
-
-                <Card className="mb-6">
-                    <CardHeader>
-                        <CardTitle className="text-base">Tautan Penilaian Layanan</CardTitle>
-                        <CardDescription className="text-sm">
-                            Tautan ini akan aktif setelah jadwal temu Anda selesai.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="bg-gray-100 p-2 rounded-md text-sm text-gray-700 break-words">
-                            <Link to="/feedback/MPP-2024-001234" className="text-green-600 hover:underline">
-                                {`http://localhost:8080/feedback/MPP-2024-001234`}
-                            </Link>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 <div className="flex justify-center space-x-4">
                   <Link to="/">
@@ -588,9 +529,11 @@ export default function Booking() {
                       Kembali ke Beranda
                     </Button>
                   </Link>
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    Download Tiket
-                  </Button>
+                  <Link to="/booking/riwayat">
+                    <Button className="bg-green-600 hover:bg-green-700">
+                      Lihat Riwayat Booking
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </>

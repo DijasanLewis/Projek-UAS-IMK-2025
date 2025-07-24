@@ -14,6 +14,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile"; 
 import ForgotPassword from "./pages/ForgotPassword";
 import Booking from "./pages/Booking";
+import BookingHistory from "./pages/BookingHistory";
 import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -62,6 +63,7 @@ const App = () => (
           <Route path="/syarat-layanan" element={<TermsOfService />} />
           <Route path="/instansi/:slug" element={<AgencyProfile />} />
           <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+          <Route path="/booking/riwayat" element={<ProtectedRoute><BookingHistory /></ProtectedRoute>} />
           <Route path="/aduan" element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

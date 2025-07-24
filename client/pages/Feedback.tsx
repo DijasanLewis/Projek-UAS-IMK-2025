@@ -1,38 +1,58 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Feedback() {
-  const { token } = useParams(); // Mengambil token dari URL
+  const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [bookingData, setBookingData] = useState<any>(null);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Data dummy ini seharusnya diambil dari database berdasarkan token
-  const bookingData = {
-    kodeBooking: token,
-    layanan: "KTP Elektronik",
-    tanggal: "25 Juli 2025",
-    waktu: "09:30 WIB",
-  };
+  useEffect(() => {
+    const bookings = JSON.parse(localStorage.getItem('mppUserBookings') || '[]');
+    const currentBooking = bookings.find((b: any) => b.id === token);
+    
+    if (currentBooking) {
+        setBookingData(currentBooking);
+        // Jika sudah ada rating, tampilkan
+        if (currentBooking.rating) {
+            setRating(currentBooking.rating);
+        }
+        if (currentBooking.feedback) {
+            setFeedback(currentBooking.feedback);
+        }
+    }
+  }, [token]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      alert("Mohon berikan peringkat bintang terlebih dahulu.");
+      toast({ variant: "destructive", title: "Peringkat diperlukan", description: "Mohon berikan peringkat bintang terlebih dahulu." });
       return;
     }
-    console.log({
-      token,
-      rating,
-      feedback,
-    });
+
+    // Update data booking di localStorage
+    const bookings = JSON.parse(localStorage.getItem('mppUserBookings') || '[]');
+    const bookingIndex = bookings.findIndex((b: any) => b.id === token);
+
+    if (bookingIndex > -1) {
+        bookings[bookingIndex].rating = rating;
+        bookings[bookingIndex].feedback = feedback;
+        bookings[bookingIndex].status = "Sudah Dinilai";
+        localStorage.setItem('mppUserBookings', JSON.stringify(bookings));
+    }
+    
     setIsSubmitted(true);
   };
 
@@ -49,15 +69,22 @@ export default function Feedback() {
             <CardDescription className="mt-2 mb-6">
               Penilaian dan masukan Anda sangat berarti untuk meningkatkan kualitas layanan kami.
             </CardDescription>
-            <Link to="/">
-              <Button className="bg-green-600 hover:bg-green-700">
-                Kembali ke Beranda
-              </Button>
-            </Link>
+            <Button onClick={() => navigate('/booking/riwayat')} className="bg-green-600 hover:bg-green-700">
+                Kembali ke Riwayat Booking
+            </Button>
           </Card>
         </div>
       </div>
     );
+  }
+
+  if (!bookingData) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="text-center py-12">Loading...</div>
+        </div>
+      );
   }
 
   return (
@@ -75,7 +102,7 @@ export default function Feedback() {
               </CardDescription>
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4 text-sm">
                 <p><strong>Layanan:</strong> {bookingData.layanan}</p>
-                <p><strong>Jadwal:</strong> {bookingData.tanggal}, Pukul {bookingData.waktu}</p>
+                <p><strong>Jadwal:</strong> {bookingData.tanggal}, Pukul {bookingData.waktu} WIB</p>
               </div>
             </CardHeader>
             <CardContent>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth"; // Import useAuth
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -12,13 +12,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"; // Import AlertDialog
-import { Building, Calendar, LogIn, LogOut, User, Menu, X } from "lucide-react"; // Import LogOut & User
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Building, Calendar, LogIn, LogOut, User, Menu, X, ChevronDown, History } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { isLoggedIn, logout } = useAuth(); // Gunakan hook
+  const { user, isLoggedIn, logout } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -28,6 +36,7 @@ export default function Navbar() {
     { path: "/", label: "Beranda" },
     { path: "/profil-mpp", label: "Profil MPP" },
     { path: "/layanan", label: "Layanan" },
+    { path: "/booking", label: "Booking Antrian" },
     { path: "/berita", label: "Berita" },
     { path: "/panduan", label: "Panduan" },
     { path: "/aduan", label: "Aduan" },
@@ -37,7 +46,6 @@ export default function Navbar() {
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and Title */}
           <Link to="/" className="flex items-center space-x-3">
             <div className="bg-gradient-to-r from-green-600 to-green-700 p-2 rounded-lg">
               <Building className="h-6 w-6 text-white" />
@@ -52,7 +60,6 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
             {navItems.map((item) => (
               <Link
@@ -73,32 +80,46 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-3">
             {isLoggedIn ? (
               <>
-                <Link to="/profil">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
                     <User className="h-4 w-4 mr-2" />
-                    Profil
+                    {user?.nama.split(' ')[0]}
+                    <ChevronDown className="h-4 w-4 ml-1" />
                   </Button>
-                </Link>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Keluar
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Konfirmasi Keluar</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Apakah Anda yakin ingin keluar dari akun Anda?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction onClick={logout} className="bg-red-500 hover:bg-red-600">Ya, Keluar</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profil"><User className="h-4 w-4 mr-2" />Profil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/booking/riwayat"><History className="h-4 w-4 mr-2" />Riwayat Booking</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                              <LogOut className="h-4 w-4 mr-2 text-red-500" />
+                              <span className="text-red-500">Keluar</span>
+                          </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                          <AlertDialogTitle>Konfirmasi Keluar</AlertDialogTitle>
+                          <AlertDialogDescription>
+                              Apakah Anda yakin ingin keluar dari akun Anda?
+                          </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
+                          <AlertDialogAction onClick={logout} className="bg-red-500 hover:bg-red-600">Ya, Keluar</AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
               </>
             ) : (
               <>
