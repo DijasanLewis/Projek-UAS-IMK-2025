@@ -573,16 +573,31 @@ export default function Booking() {
                 </div>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <h4 className="font-medium text-yellow-800 mb-2">
+                    <h4 className="font-medium text-yellow-800 mb-2">
                     Langkah Selanjutnya:
-                  </h4>
-                  <ul className="text-sm text-yellow-700 space-y-1">
-                    <li>• Simpan kode booking Anda</li>
-                    <li>• Konfirmasi akan dikirim via email dan SMS</li>
-                    <li>• Datang 15 menit sebelum waktu booking</li>
-                    <li>• Bawa dokumen yang diperlukan</li>
-                  </ul>
+                    </h4>
+                    <ul className="text-sm text-yellow-700 space-y-2">
+                        <li>• Simpan kode booking Anda.</li>
+                        <li>• Datang 15 menit sebelum waktu booking.</li>
+                        <li>• <strong>Setelah selesai, jangan lupa untuk menilai pelayanan kami melalui tautan di bawah ini.</strong></li>
+                    </ul>
                 </div>
+
+                <Card className="mb-6">
+                    <CardHeader>
+                        <CardTitle className="text-base">Tautan Penilaian Layanan</CardTitle>
+                        <CardDescription className="text-sm">
+                            Tautan ini akan aktif setelah jadwal temu Anda selesai.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="bg-gray-100 p-2 rounded-md text-sm text-gray-700 break-words">
+                            <Link to="/feedback/MPP-2024-001234" className="text-green-600 hover:underline">
+                                {`http://localhost:8080/feedback/MPP-2024-001234`}
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="flex justify-center space-x-4">
                   <Link to="/">

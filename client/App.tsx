@@ -15,6 +15,7 @@ import NewsDetail from "./pages/NewsDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Complaint from "./pages/Complaint";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/berita" element={<News />} />
           <Route path="/berita/:slug" element={<NewsDetail />} />
           <Route path="/aduan" element={<Complaint />} />
+          <Route path="/feedback/:token" element={<Feedback />} />
           <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
           <Route path="/syarat-layanan" element={<TermsOfService />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
